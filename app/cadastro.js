@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#003C71', // Azul escuro Ford
+    backgroundColor: '#003B5C', // Azul escuro Ford
     padding: 20,
   },
   titulo: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 50,
-    backgroundColor: '#1C1C1C', // Fundo escuro para os inputs
+    backgroundColor: '#000D2A', // Fundo escuro para os inputs
     color: '#FFFFFF', // Texto branco
     borderRadius: 8,
     paddingHorizontal: 10,

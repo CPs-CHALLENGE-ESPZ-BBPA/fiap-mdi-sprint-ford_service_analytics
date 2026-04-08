@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#003C71', // Azul escuro Ford
+    backgroundColor: '#003B5C', // Azul escuro Ford
     padding: 20,
   },
   titulo: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   table: {
-    backgroundColor: '#1F3A62', // Azul mais claro para a tabela
+    backgroundColor: '#000D2A', // Azul mais claro para a tabela
     padding: 20,
     borderRadius: 8,
     width: '100%',

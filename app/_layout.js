@@ -11,7 +11,7 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#003C71", // Azul escuro Ford
+            backgroundColor: "#0061A8", // Azul escuro Ford
           },
           headerTintColor: "#FFFFFF", // Branco para o título do cabeçalho
           headerTitleStyle: {
