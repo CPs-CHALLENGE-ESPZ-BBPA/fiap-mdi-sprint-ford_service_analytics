@@ -1,44 +1,52 @@
 {
   "carros": [
     {
-      "nome": "a",
-      "modelo": "a",
-      "ano": "a",
-      "problema": "a",
-      "custo": null,
-      "id": "zrIFmfv8WNg"
+      "id": "1",
+      "nome": "Toyota Corolla",
+      "modelo": "XEI 2020",
+      "ano": 2020,
+      "problema": "Troca de óleo",
+      "custo": 250
     },
     {
-      "nome": "a",
-      "modelo": "a",
-      "ano": "a",
-      "problema": "a",
-      "custo": null,
-      "id": "pD5cRwAmtiM"
+      "id": "2",
+      "nome": "Honda Civic",
+      "modelo": "EX 2019",
+      "ano": 2019,
+      "problema": "Freio traseiro desgastado",
+      "custo": 450
     },
     {
-      "nome": "teste2",
-      "modelo": "2",
-      "ano": "2",
-      "problema": "2",
-      "custo": 2,
-      "id": "5nsOKvmj9U0"
+      "id": "3",
+      "nome": "Ford Ka",
+      "modelo": "SE 2018",
+      "ano": 2018,
+      "problema": "Bateria descarregada",
+      "custo": 300
     },
     {
-      "nome": "tst3",
-      "modelo": "3",
-      "ano": "3",
-      "problema": "3",
-      "custo": 3,
-      "id": "dn9Ko2jFvCI"
+      "id": "4",
+      "nome": "Chevrolet Onix",
+      "modelo": "LT 2021",
+      "ano": 2021,
+      "problema": "Suspensão dianteira",
+      "custo": 1200
     },
     {
-      "nome": "7",
-      "modelo": "7",
-      "ano": "7",
-      "problema": "7",
-      "custo": 7,
-      "id": "DNBVBt2iy9g"
+      "id": "5",
+      "nome": "Volkswagen Gol",
+      "modelo": "Trend 2017",
+      "ano": 2017,
+      "problema": "Pneu furado",
+      "custo": 150
+    },
+    {
+      "id": "6",
+      "nome": "Jeep Renegade",
+      "modelo": "Sport 2022",
+      "ano": 2022,
+      "problema": "Troca de filtros",
+      "custo": 350
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
