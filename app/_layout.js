@@ -57,9 +57,9 @@ export default function Layout() {
         />
 
         <Stack.Screen
-          name="profile"
+          name="registros"
           options={{
-            title: "Perfil",
+            title: "Registros",
             headerStyle: {
               backgroundColor: "#0061A8", // Azul claro Ford
             },

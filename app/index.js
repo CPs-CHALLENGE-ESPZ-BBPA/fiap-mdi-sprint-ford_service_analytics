@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#1A1A1A', // Fundo escuro para o campo de input
+    backgroundColor: '#000D2A', // Fundo escuro para o campo de input
     color: '#FFFFFF', // Texto branco
     padding: 12,
     borderRadius: 8,

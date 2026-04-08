@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function Profile() {
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Perfil do Carro</Text>
+      <Text style={styles.titulo}>Registros</Text>
 
       <View style={styles.table}>
         {/* Cabeçalho da Tabela com os campos */}
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   titulo: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF', // Texto branco para contraste
     marginBottom: 30,
@@ -57,17 +57,18 @@ const styles = StyleSheet.create({
   headerText: {
     flex: 1,
     color: '#FFFFFF', // Branco para os cabeçalhos
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center', // Centraliza o texto no cabeçalho
     backgroundColor: '#0061A8', // Azul claro Ford
     paddingVertical: 5,
     borderRadius: 5,
+    marginHorizontal: 2,
   },
   rowValue: {
     flex: 1,
     color: '#FFFFFF', // Texto branco para os valores
-    fontSize: 16,
+    fontSize: 12,
     textAlign: 'center', // Alinha o valor ao centro
   },
 });

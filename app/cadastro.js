@@ -24,7 +24,7 @@ export default function Cadastro() {
   const goToProfile = () => {
     // Navegar para a tela Profile após o cadastro
     router.push({
-      pathname: '/profile',  // Caminho para a tela Profile
+      pathname: '/registros',  // Caminho para a tela registrs
       query: { carro, modelo, ano, problema, custo },  // Passando os dados como query
     });
   };
