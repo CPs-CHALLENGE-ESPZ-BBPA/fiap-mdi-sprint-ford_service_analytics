@@ -4,20 +4,21 @@ import { View } from "react-native";
 
 export default function Layout() {
   return (
-    <View style={{ flex: 1, backgroundColor: "#000000" }}>
+    <View style={{ flex: 1, backgroundColor: "#003C71" }}>
+      {/* Azul escuro Ford */}
       <StatusBar style="light" />
 
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#000000",
+            backgroundColor: "#003C71", // Azul escuro Ford
           },
-          headerTintColor: "#FFFFFF",
+          headerTintColor: "#FFFFFF", // Branco para o título do cabeçalho
           headerTitleStyle: {
             fontWeight: "bold",
           },
           contentStyle: {
-            backgroundColor: "#000000",
+            backgroundColor: "#F4F4F4",  // Cor neutra para o fundo da tela
           },
           animation: "slide_from_right",
         }}
@@ -27,9 +28,9 @@ export default function Layout() {
           options={{
             title: "Home",
             headerStyle: {
-              backgroundColor: "#ED145B",
+              backgroundColor: "#0061A8", // Azul claro Ford
             },
-            headerTintColor: "#FFFFFF",
+            headerTintColor: "#FFFFFF", // Texto branco para contraste
           }}
         />
 
@@ -37,13 +38,21 @@ export default function Layout() {
           name="about"
           options={{
             title: "Sobre",
+            headerStyle: {
+              backgroundColor: "#0061A8", // Azul claro Ford
+            },
+            headerTintColor: "#FFFFFF",
           }}
         />
 
         <Stack.Screen
           name="login"
           options={{
-              title: "Login",
+            title: "Login",
+            headerStyle: {
+              backgroundColor: "#0061A8", // Azul claro Ford
+            },
+            headerTintColor: "#FFFFFF",
           }}
         />
 
@@ -51,9 +60,12 @@ export default function Layout() {
           name="profile"
           options={{
             title: "Perfil",
+            headerStyle: {
+              backgroundColor: "#0061A8", // Azul claro Ford
+            },
+            headerTintColor: "#FFFFFF",
           }}
         />
-
       </Stack>
     </View>
   );

@@ -1,88 +1,29 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import Button from '../components/Button';
-import Message from '../components/Message';
-import LoadingOverlay from '../components/LoadingOverlay';
-import { validateLocation } from '../utils/locationService';
-import { checkWifiConnection } from '../utils/wifiService';
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function Profile() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-
-  // Registra presença
-  const handleRegisterAttendance = async () => {
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      // Valida localização
-      const locationResult = await validateLocation();
-      
-      if (!locationResult.isValid) {
-        setMessage({
-          type: 'error',
-          text: `Você está muito longe da FIAP (${locationResult.distance}m). Aproxime-se da instituição.`
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Valida WiFi
-      const wifiResult = await checkWifiConnection();
-      
-      if (!wifiResult.isValid) {
-        setMessage({
-          type: 'error',
-          text: wifiResult.message
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Presença validada com sucesso
-      setMessage({
-        type: 'success',
-        text: 'Presença registrada com sucesso!'
-      });
-
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error.message || 'Erro ao registrar presença'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <LoadingOverlay visible={loading} message="Validando..." />
+      <Text style={styles.titulo}>Perfil do Carro</Text>
 
-      <Image
-        source={require("../assets/fiap-logo.png")}
-        style={styles.imagem}
-      />
+      <View style={styles.table}>
+        {/* Cabeçalho da Tabela com os campos */}
+        <View style={styles.tableRow}>
+          <Text style={styles.headerText}>Carro</Text>
+          <Text style={styles.headerText}>Modelo</Text>
+          <Text style={styles.headerText}>Ano</Text>
+          <Text style={styles.headerText}>Problema</Text>
+          <Text style={styles.headerText}>Custo</Text>
+        </View>
 
-      <Text style={styles.nome}>Usuário</Text>
-      <Text style={styles.info}>RM: 123456</Text>
-      <Text style={styles.info}>usuario@fiap.com.br</Text>
-
-      <Message type={message.type} message={message.text} />
-
-      <Button
-        title="Registrar Presença"
-        onPress={handleRegisterAttendance}
-        style={styles.botao}
-      />
-
-      <Text style={styles.logout} onPress={() => router.back()}>
-        Sair
-      </Text>
-
+        {/* Linha de Valores correspondentes */}
+        <View style={styles.tableRow}>
+          <Text style={styles.rowValue}>Nome do Carro</Text>
+          <Text style={styles.rowValue}>Modelo do Carro</Text>
+          <Text style={styles.rowValue}>2022</Text>
+          <Text style={styles.rowValue}>Exemplo de Problema</Text>
+          <Text style={styles.rowValue}>R$ 3000,00</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -90,42 +31,43 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0D0D0D',
+    alignItems: 'center',
+    backgroundColor: '#003C71', // Azul escuro Ford
     padding: 20,
   },
-
-  imagem: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: '#E83D84',
-  },
-
-  nome: {
-    fontSize: 24,
+  titulo: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#E83D84',
+    color: '#FFFFFF', // Texto branco para contraste
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  table: {
+    backgroundColor: '#1F3A62', // Azul mais claro para a tabela
+    padding: 20,
+    borderRadius: 8,
+    width: '100%',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Alinha os itens na horizontal
     marginBottom: 10,
   },
-
-  info: {
-    fontSize: 14,
-    color: '#CCCCCC',
-    marginBottom: 5,
+  headerText: {
+    flex: 1,
+    color: '#FFFFFF', // Branco para os cabeçalhos
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center', // Centraliza o texto no cabeçalho
+    backgroundColor: '#0061A8', // Azul claro Ford
+    paddingVertical: 5,
+    borderRadius: 5,
   },
-
-  botao: {
-    marginTop: 12,
-    width: '80%',
-  },
-
-  logout: {
-    color: '#E83D84',
-    marginTop: 25,
+  rowValue: {
+    flex: 1,
+    color: '#FFFFFF', // Texto branco para os valores
     fontSize: 16,
+    textAlign: 'center', // Alinha o valor ao centro
   },
 });

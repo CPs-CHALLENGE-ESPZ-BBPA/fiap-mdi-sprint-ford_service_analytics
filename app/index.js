@@ -1,37 +1,51 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+// index.js
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useRouter } from 'expo-router'; // Para navegar entre as telas
+import { useState } from 'react';
 
-export default function Sobre() {
-  const router = useRouter();
+export default function Login() {
+  const router = useRouter();  // Hook para navegação
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const validarLogin = () => {
+    // Verificar se os campos não estão vazios
+    if (!email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    // Validar login (em um cenário real, seria uma validação com backend)
+    if (email === 'a' && senha === 'a') {
+      router.push('/cadastro');  // Redireciona para a tela de cadastro
+    } else {
+      Alert.alert('Erro', 'E-mail ou senha inválidos');
+    }
+  };
 
   return (
-    
     <View style={styles.container}>
-      
-      <Image
-        source={require("../assets/fiap-logo.png")}
-        style={styles.imagem}
+      <Text style={styles.titulo}>Login</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="E-mail"
+        placeholderTextColor="#888"
+        value={email}
+        onChangeText={setEmail}
       />
 
-      <Text style={styles.titulo}>Presença Inteligente</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        placeholderTextColor="#888"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
 
-      <Text style={styles.descricao}>
-        Este projeto foi desenvolvido com o objetivo de modernizar o controle de presença
-        dos alunos.
-      </Text>
-
-      <Text style={styles.descricao}>
-        A proposta é permitir que o aluno registre sua presença de forma independente,
-        diretamente pelo aplicativo, sem necessidade de chamadas manuais.
-      </Text>
-
-      <Text style={styles.descricao}>
-        Para garantir a autenticidade, a presença só pode ser marcada quando o aluno
-        estiver conectado ao Wi-Fi da FIAP ou dentro da área de localização da instituição.
-      </Text>
-
-      <TouchableOpacity onPress={() => router.push('/login')}>
-        <Text style={styles.acessar}>Acessar</Text>
+      <TouchableOpacity style={styles.botao} onPress={validarLogin}>
+        <Text style={styles.textoBotao}>Entrar</Text>
       </TouchableOpacity>
 
     </View>
@@ -41,40 +55,42 @@ export default function Sobre() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0D0D0D',
+    alignItems: 'center',
+    backgroundColor: '#003C71', // Azul escuro Ford
     padding: 20,
   },
-
-  imagem: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: '#E83D84',
-  },
-
   titulo: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#E83D84',
-    marginBottom: 12,
-  },
-
-  descricao: {
-    fontSize: 15,
-    color: '#CCCCCC',
+    color: '#FFFFFF', // Branco para o texto do título
+    marginBottom: 30,
     textAlign: 'center',
-    marginBottom: 10,
-    lineHeight: 22,
   },
-
-  acessar: {
+  input: {
+    backgroundColor: '#1A1A1A', // Fundo escuro para o campo de input
+    color: '#FFFFFF', // Texto branco
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#0061A8', // Azul claro para o contorno do campo
+  },
+  botao: {
+    backgroundColor: '#0061A8', // Azul claro Ford
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  textoBotao: {
+    color: '#FFFFFF', // Branco para o texto do botão
+    fontWeight: 'bold',
     fontSize: 16,
-    color: '#E83D84',
-    fontWeight: '600',
+  },
+  link: {
+    color: '#E83D84', // Cor de destaque para o link (rosa Ford)
+    textAlign: 'center',
     marginTop: 20,
   },
 });
