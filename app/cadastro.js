@@ -1,32 +1,64 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useState } from 'react';
-import { useRouter } from 'expo-router';  // Hook de navegação
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert
+} from 'react-native';
+import { useRouter } from 'expo-router';
+
+// ajustar IP
+const API_URL = "http://10.3.32.23:3000";
 
 export default function Cadastro() {
-  const router = useRouter();  // Hook para navegação
+  const router = useRouter();
+
   const [carro, setCarro] = useState('');
   const [modelo, setModelo] = useState('');
   const [ano, setAno] = useState('');
   const [problema, setProblema] = useState('');
   const [custo, setCusto] = useState('');
 
-  const handleSubmit = () => {
-    // Verificação simples dos dados
+  const handleSubmit = async () => {
     if (!carro || !modelo || !ano || !problema || !custo) {
-      alert('Preencha todos os campos!');
+      Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
 
-    // Exemplo de como os dados poderiam ser passados (aqui não há navegação real)
-    alert(`Cadastro de ${carro} realizado!`);
-  };
+    const carData = {
+      nome: carro,
+      modelo,
+      ano,
+      problema,
+      custo: parseFloat(custo),
+    };
 
-  const goToProfile = () => {
-    // Navegar para a tela Profile após o cadastro
-    router.push({
-      pathname: '/registros',  // Caminho para a tela registrs
-      query: { carro, modelo, ano, problema, custo },  // Passando os dados como query
-    });
+    try {
+      const response = await fetch(`${API_URL}/carros`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(carData),
+      });
+
+      if (response.ok) {
+        // Feedback sucesso
+        Alert.alert('Sucesso', 'Carro cadastrado com sucesso!');
+
+        // Limpa os campos
+        setCarro('');
+        setModelo('');
+        setAno('');
+        setProblema('');
+        setCusto('');
+      } else {
+        throw new Error('Erro ao cadastrar');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível conectar ao servidor');
+      console.log(error);
+    }
   };
 
   return (
@@ -36,31 +68,40 @@ export default function Cadastro() {
       <TextInput
         style={styles.input}
         placeholder="Nome do Carro"
+        placeholderTextColor="#ccc"
         value={carro}
         onChangeText={setCarro}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Modelo"
+        placeholderTextColor="#ccc"
         value={modelo}
         onChangeText={setModelo}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Ano"
+        placeholderTextColor="#ccc"
         keyboardType="numeric"
         value={ano}
         onChangeText={setAno}
       />
+
       <TextInput
         style={styles.input}
-        placeholder="Problema Encontrado"
+        placeholder="Problema"
+        placeholderTextColor="#ccc"
         value={problema}
         onChangeText={setProblema}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Custo (R$)"
+        placeholderTextColor="#ccc"
         keyboardType="numeric"
         value={custo}
         onChangeText={setCusto}
@@ -70,8 +111,11 @@ export default function Cadastro() {
         <Text style={styles.textoBotao}>Cadastrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.botao} onPress={goToProfile}>
-        <Text style={styles.textoBotao}>Ir para o Perfil</Text>
+      <TouchableOpacity
+        style={[styles.botao, { backgroundColor: '#00A86B' }]}
+        onPress={() => router.push('/registros')}
+      >
+        <Text style={styles.textoBotao}>Ver Registros</Text>
       </TouchableOpacity>
     </View>
   );
@@ -82,36 +126,37 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#003B5C', // Azul escuro Ford
+    backgroundColor: '#003C71',
     padding: 20,
   },
   titulo: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#FFFFFF', // Branco para contraste
+    color: '#FFFFFF',
     marginBottom: 20,
   },
   input: {
     width: '100%',
     height: 50,
-    backgroundColor: '#000D2A', // Fundo escuro para os inputs
-    color: '#FFFFFF', // Texto branco
+    backgroundColor: '#1F3A62',
+    color: '#FFFFFF',
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
     fontSize: 16,
   },
   botao: {
-    backgroundColor: '#0061A8', // Azul claro Ford
+    backgroundColor: '#0061A8',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 15,
+    width: '100%',
   },
   textoBotao: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF', // Texto branco no botão
+    color: '#FFFFFF',
     textAlign: 'center',
   },
 });

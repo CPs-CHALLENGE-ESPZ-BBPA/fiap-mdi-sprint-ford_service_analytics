@@ -1,0 +1,37 @@
+{
+  "carros": [
+    {
+      "nome": "a",
+      "modelo": "a",
+      "ano": "a",
+      "problema": "a",
+      "custo": null,
+      "id": "zrIFmfv8WNg"
+    },
+    {
+      "nome": "a",
+      "modelo": "a",
+      "ano": "a",
+      "problema": "a",
+      "custo": null,
+      "id": "pD5cRwAmtiM"
+    },
+    {
+      "nome": "teste2",
+      "modelo": "2",
+      "ano": "2",
+      "problema": "2",
+      "custo": 2,
+      "id": "5nsOKvmj9U0"
+    },
+    {
+      "nome": "tst3",
+      "modelo": "3",
+      "ano": "3",
+      "problema": "3",
+      "custo": 3,
+      "id": "dn9Ko2jFvCI"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
