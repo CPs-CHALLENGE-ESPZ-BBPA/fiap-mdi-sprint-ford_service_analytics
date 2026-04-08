@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const API_URL = "http://10.3.32.23:3000"; // seu IP local
@@ -8,6 +8,7 @@ export default function Registros() {
   const router = useRouter();
   const [cars, setCars] = useState([]);
 
+  // Buscar carros da API
   const fetchCars = async () => {
     try {
       const response = await fetch(`${API_URL}/carros`);
@@ -22,9 +23,25 @@ export default function Registros() {
     fetchCars();
   }, []);
 
+  // Renderiza cada linha da tabela
+  const renderRow = ({ item, index }) => (
+    <View
+      style={[
+        styles.row,
+        { backgroundColor: index % 2 === 0 ? '#1F3A62' : '#26547C' }, // linhas alternadas
+      ]}
+    >
+      <Text style={styles.cell}>{item.nome}</Text>
+      <Text style={styles.cell}>{item.modelo}</Text>
+      <Text style={styles.cell}>{item.ano}</Text>
+      <Text style={styles.cell}>{item.problema}</Text>
+      <Text style={styles.cell}>{item.custo}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      {/* BOTÃO VOLTAR */}
+      {/* Botão voltar */}
       <TouchableOpacity
         style={styles.botaoVoltar}
         onPress={() => router.push('/cadastro')}
@@ -32,28 +49,24 @@ export default function Registros() {
         <Text style={styles.textoBotao}>← Voltar para Cadastro</Text>
       </TouchableOpacity>
 
-      {/* TABELA */}
-      <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
+      {/* Tabela */}
+      <ScrollView horizontal contentContainerStyle={{ alignItems: 'center' }}>
         <View>
-          {/* Cabeçalho da tabela */}
+          {/* Cabeçalho */}
           <View style={[styles.row, styles.headerRow]}>
             <Text style={[styles.cell, styles.headerCell]}>Nome</Text>
             <Text style={[styles.cell, styles.headerCell]}>Modelo</Text>
             <Text style={[styles.cell, styles.headerCell]}>Ano</Text>
             <Text style={[styles.cell, styles.headerCell]}>Problema</Text>
-            <Text style={[styles.cell, styles.headerCell]}>Custo (R$)</Text>
+            <Text style={[styles.cell, styles.headerCell]}>Custo</Text>
           </View>
 
-          {/* Linhas da tabela */}
-          {cars.map((item) => (
-            <View key={item.id} style={styles.row}>
-              <Text style={styles.cell}>{item.nome}</Text>
-              <Text style={styles.cell}>{item.modelo}</Text>
-              <Text style={styles.cell}>{item.ano}</Text>
-              <Text style={styles.cell}>{item.problema}</Text>
-              <Text style={styles.cell}>{item.custo}</Text>
-            </View>
-          ))}
+          {/* Linhas */}
+          <FlatList
+            data={cars}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderRow}
+          />
         </View>
       </ScrollView>
     </View>
@@ -64,11 +77,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#003C71',
-    alignItems: 'center',
     padding: 10,
-  },
-  scrollContainer: {
-    justifyContent: 'center',
     alignItems: 'center',
   },
   row: {
@@ -82,9 +91,9 @@ const styles = StyleSheet.create({
   cell: {
     padding: 10,
     minWidth: 100,
+    textAlign: 'center',
     color: '#FFFFFF',
     fontSize: 16,
-    textAlign: 'center',
   },
   headerCell: {
     fontWeight: 'bold',
@@ -98,7 +107,7 @@ const styles = StyleSheet.create({
   },
   textoBotao: {
     color: '#FFFFFF',
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
