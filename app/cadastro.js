@@ -112,7 +112,7 @@ export default function Cadastro() {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.botao, { backgroundColor: '#00A86B' }]}
+        style={[styles.botao, { backgroundColor: '#0061A8' }]}
         onPress={() => router.push('/registros')}
       >
         <Text style={styles.textoBotao}>Ver Registros</Text>

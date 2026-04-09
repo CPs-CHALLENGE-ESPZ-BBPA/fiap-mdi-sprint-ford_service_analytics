@@ -47,6 +47,22 @@
       "ano": 2022,
       "problema": "Troca de filtros",
       "custo": 350
+    },
+    {
+      "id": "477",
+      "nome": "Chevrolet Onix",
+      "modelo": "LT 2021",
+      "ano": 2021,
+      "problema": "Suspensão dianteira",
+      "custo": 1200
+    },
+    {
+      "id": "499",
+      "nome": "Chevrolet Onix",
+      "modelo": "LT 2021",
+      "ano": 2021,
+      "problema": "Suspensão dianteira",
+      "custo": 1200
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
