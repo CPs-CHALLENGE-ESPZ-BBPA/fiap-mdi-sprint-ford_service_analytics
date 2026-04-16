@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   card: { 
-    backgroundColor: '#0061A8', 
+    backgroundColor: '#000D2A', 
     paddingVertical: 20, 
     paddingHorizontal: 15, 
     borderRadius: 8, 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#0061A8' 
   },
   headerRow: { 
-    backgroundColor: '#0061A8' 
+    backgroundColor: '#000D2A' 
   },
   cell: { 
     padding: 10, 
