@@ -1,23 +1,21 @@
 // index.js
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router'; // Para navegar entre as telas
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export default function Login() {
-  const router = useRouter();  // Hook para navegação
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
   const validarLogin = () => {
-    // Verificar se os campos não estão vazios
     if (!email || !senha) {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
 
-    // Validar login (em um cenário real, seria uma validação com backend)
     if (email === 'a' && senha === 'a') {
-      router.push('/cadastro');  // Redireciona para a tela de cadastro
+      router.push('/cadastro');
     } else {
       Alert.alert('Erro', 'E-mail ou senha inválidos');
     }
@@ -25,6 +23,12 @@ export default function Login() {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../assets/ford-logo.png')}
+        style={styles.logo}
+      />
+      <Text style={styles.appTitulo}>Ford Service App</Text>
+
       <Text style={styles.titulo}>Login</Text>
 
       <TextInput
@@ -57,40 +61,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#003C71', // Azul escuro Ford
+    backgroundColor: '#003C71',
     padding: 20,
   },
-  titulo: {
-    fontSize: 28,
+
+  appTitulo: {
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF', // Branco para o texto do título
-    marginBottom: 30,
+    color: '#FFFFFF',
+    marginBottom: 10,
     textAlign: 'center',
   },
+
+  titulo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+
   input: {
-    backgroundColor: '#000D2A', // Fundo escuro para o campo de input
-    color: '#FFFFFF', // Texto branco
+    width: '100%',          
+    backgroundColor: '#000D2A',
+    color: '#FFFFFF',
     padding: 12,
     borderRadius: 8,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#0061A8', // Azul claro para o contorno do campo
+    borderColor: '#0061A8',
   },
+
   botao: {
-    backgroundColor: '#0061A8', // Azul claro Ford
+    width: '100%',        
+    backgroundColor: '#0061A8',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
+
   textoBotao: {
-    color: '#FFFFFF', // Branco para o texto do botão
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  link: {
-    color: '#E83D84', // Cor de destaque para o link (rosa Ford)
-    textAlign: 'center',
-    marginTop: 20,
+
+  logo: {
+  width: 120,
+  height: 60,
+  resizeMode: 'contain',
+  marginBottom: 15,
   },
+
 });
