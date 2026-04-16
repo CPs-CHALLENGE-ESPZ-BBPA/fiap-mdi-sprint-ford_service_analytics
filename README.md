@@ -1,117 +1,72 @@
-# 📱 App de Presença (Expo)
+# App de Controle de Oficina (Expo)
 
-# Integrantes do grupo
-
-### Albert Katri - rm556544
-### Bruno Carneiro Leão - rm555563
-### Bruno Biletsky - rm554739
-### Paulo Akira Okama - rm556840
-
-# 📖 Resumo
-Aplicativo móvel desenvolvido com Expo para registro de presença, incluindo:
-
-- Presença  
-- Login  
-- Perfil  
-
-Utiliza expo-router para navegação baseada em arquivos e valida presença via localização e Wi-Fi.
+## Integrantes
+- Albert Katri — rm556544  
+- Bruno Carneiro Leão — rm555563  
+- Bruno Biletsky — rm554739  
+- Paulo Akira Okama — rm556840  
 
 ---
 
-# 🧭 Navegação
-O projeto utiliza roteamento baseado em arquivos.  
-Cada arquivo dentro da pasta `app` vira automaticamente uma rota.
+## Resumo
+Aplicativo móvel desenvolvido com **Expo + React Native** para gerenciamento de registros de carros em uma oficina.
+
+O sistema permite visualizar veículos, acompanhar problemas recorrentes e analisar custos de manutenção.
+
+Funcionalidades principais:
+- Listagem de carros cadastrados  
+- Registro de problemas mecânicos  
+- Indicadores de análise (problemas mais comuns, top carros, anos frequentes)  
+- Integração com `json-server` (API fake)  
+- Navegação com `expo-router`  
 
 ---
 
-# 📱 Telas Principais
+## Estrutura do projeto
 
-## 🏠 index.js
-Tela inicial (Home) com informações e botão para iniciar presença.
+- `app/` → telas e rotas (expo-router)
+  - `index.js` → Home
+  - `login.js` → Tela de login
+  - `cadastro.js` → Cadastro de registros
+  - `registros.js` → Lista de carros registrados
+  - `_layout.js` → estrutura de navegação
 
-## 🔐 login.js
-Tela de login com autenticação de usuário e senha.
-
-## 👤 profile.js
-Tela de perfil do usuário com dados e opções da conta.
-
-## 🧩 _layout.js
-Configuração de layout e navegação compartilhada.
-
----
-
-# ⚙️ Funcionalidades
-
-## 🧠 Serviços Utilitários
-
-### 📍 locationService.js
-Responsável pela validação de presença via geolocalização.
-
-### 📶 wifiService.js
-Verifica se o usuário está conectado a um Wi-Fi autorizado.
+- `components/` → componentes reutilizáveis  
+- `services/` → chamadas de API (`fetchCars`, etc.)  
+- `utils/` → funções auxiliares (localização, Wi-Fi, etc.)  
+- `assets/` → imagens, ícones e splash  
+- `db.json` → banco de dados fake (json-server)  
+- `package.json` → dependências do projeto  
 
 ---
 
-## 🧩 Componentes Reutilizáveis
+## Dados do sistema
 
-### 🔘 Button.js
-Botão estilizado.
+O projeto utiliza um `json-server` com estrutura de carros, por exemplo:
 
-### ⏳ LoadingOverlay.js
-Overlay de carregamento.
-
-### 💬 Message.js
-Exibição de mensagens e erros.
-
----
-
-# 🗂️ Estrutura de Pastas
-
-### app → telas e layout
-### components → componentes reutilizáveis
-### utils → serviços (localização, Wi-Fi)
-### assets → ícones, imagens e splash
-### index.js → entrada do app
-### package.json → dependências
-### app.json → configurações
-
+- nome do veículo
+- modelo
+- ano
+- problema mecânico
+- custo de manutenção
 
 ---
 
-# 🚀 Como Executar
+## Funcionalidades principais
 
-## 💻 Instalar dependências
-
-### npm install
-
-
-## ▶️ Iniciar o projeto
-
-### npx expo start
-
-
-## 📱 Executar
-- Expo Go (QR Code)  
-- Emulador Android  
-- Simulador iOS  
+- Visualização de veículos cadastrados  
+- Cálculo de indicadores:
+  - Problemas mais comuns
+  - Top 3 carros com mais ocorrências
+  - Ano mais frequente
+- Análise de custos de manutenção  
 
 ---
 
-# ⚠️ Observações
+## Como executar o projeto
 
-- A navegação é automática (baseada em arquivos)  
-- Para alterar ícones/splash, edite `assets` e `app.json`  
-- Permissões de localização são necessárias  
+### 1. Instalar dependências
+npm install
 
----
-
-# 🤝 Contribuição
-
-Abra issues ou envie pull requests.  
-Siga o padrão existente do projeto.
-
----
-
-# 📄 Licença
-
-Definida no package.json (ou adicionar conforme necessário).
+### 2. Rodar API
+npx json-server --watch db.json --port 3000 --host 0.0.0.0
