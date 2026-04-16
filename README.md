@@ -9,9 +9,9 @@
 ---
 
 ## Resumo
-Aplicativo móvel desenvolvido com **Expo + React Native** para gerenciamento de registros de carros em uma oficina.
+Aplicativo móvel desenvolvido com **Expo + React Native** para gerenciamento de registros e criação de insights dos carros que visitaram a oficina FORD.
 
-O sistema permite visualizar veículos, acompanhar problemas recorrentes e analisar custos de manutenção.
+O sistema permite visualizar veículos, acompanhar problemas recorrentes e analisar custos de manutenção. A partir disso é possivel saber quais promoções e clientes que possam interessar para os donos de carro da marca. Ajudando ao analista ford acertar o público alvo e aumentar o VIN SHARE pós venda.
 
 Funcionalidades principais:
 - Listagem de carros cadastrados  
