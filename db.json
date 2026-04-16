@@ -2,68 +2,84 @@
   "carros": [
     {
       "id": "1",
-      "nome": "Toyota Corolla",
-      "modelo": "XEI 2020",
-      "ano": 2020,
-      "problema": "Troca de óleo",
-      "custo": 250
-    },
-    {
-      "id": "2",
-      "nome": "Honda Civic",
-      "modelo": "EX 2019",
-      "ano": 2019,
-      "problema": "Freio traseiro desgastado",
-      "custo": 450
-    },
-    {
-      "id": "3",
       "nome": "Ford Ka",
-      "modelo": "SE 2018",
+      "modelo": "SE",
       "ano": 2018,
       "problema": "Bateria descarregada",
       "custo": 300
     },
     {
+      "id": "2",
+      "nome": "Ford Fiesta",
+      "modelo": "SE",
+      "ano": 2019,
+      "problema": "Troca de óleo",
+      "custo": 250
+    },
+    {
+      "id": "3",
+      "nome": "Ford EcoSport",
+      "modelo": "Freestyle",
+      "ano": 2020,
+      "problema": "Freio traseiro desgastado",
+      "custo": 450
+    },
+    {
       "id": "4",
-      "nome": "Chevrolet Onix",
-      "modelo": "LT 2021",
+      "nome": "Ford Focus",
+      "modelo": "Titanium",
       "ano": 2021,
       "problema": "Suspensão dianteira",
       "custo": 1200
     },
     {
       "id": "5",
-      "nome": "Volkswagen Gol",
-      "modelo": "Trend 2017",
-      "ano": 2017,
-      "problema": "Pneu furado",
-      "custo": 150
-    },
-    {
-      "id": "6",
-      "nome": "Jeep Renegade",
-      "modelo": "Sport 2022",
+      "nome": "Ford Ranger",
+      "modelo": "XLS",
       "ano": 2022,
       "problema": "Troca de filtros",
       "custo": 350
     },
+
     {
-      "id": "477",
-      "nome": "Chevrolet Onix",
-      "modelo": "LT 2021",
-      "ano": 2021,
-      "problema": "Suspensão dianteira",
-      "custo": 1200
+      "id": "6",
+      "nome": "Ford Ka",
+      "modelo": "SE",
+      "ano": 2018,
+      "problema": "Bateria descarregada",
+      "custo": 300
     },
     {
-      "id": "499",
-      "nome": "Chevrolet Onix",
-      "modelo": "LT 2021",
+      "id": "7",
+      "nome": "Ford Fiesta",
+      "modelo": "SE",
+      "ano": 2019,
+      "problema": "Troca de óleo",
+      "custo": 250
+    },
+    {
+      "id": "8",
+      "nome": "Ford EcoSport",
+      "modelo": "Freestyle",
+      "ano": 2020,
+      "problema": "Freio traseiro desgastado",
+      "custo": 450
+    },
+    {
+      "id": "9",
+      "nome": "Ford Ka",
+      "modelo": "SE",
+      "ano": 2018,
+      "problema": "Bateria descarregada",
+      "custo": 300
+    },
+    {
+      "id": "10",
+      "nome": "Ford Focus",
+      "modelo": "Titanium",
       "ano": 2021,
       "problema": "Suspensão dianteira",
       "custo": 1200
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }
