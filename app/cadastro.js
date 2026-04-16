@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 
 // ajustar IP
-const API_URL = "http://10.3.32.23:3000";
+const API_URL = "http://localhost:3000";
 
 export default function Cadastro() {
   const router = useRouter();
