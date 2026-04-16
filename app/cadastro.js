@@ -10,8 +10,13 @@ import {
 import { useRouter } from 'expo-router';
 
 // ajustar IP
-const API_URL = "http://localhost:3000";
+import { Platform } from "react-native";
 
+const API_URL = Platform.select({
+  android: "http://10.0.2.2:3000",
+  ios: "http://localhost:3000",
+  web: "http://localhost:3000",
+});
 export default function Cadastro() {
   const router = useRouter();
 

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Platform } from "react-native";
 
-const API_URL = "http://localhost:3000"; // seu IP local
+const API_URL = Platform.select({
+  android: "http://10.0.2.2:3000",
+  ios: "http://localhost:3000",
+  web: "http://localhost:3000",
+});
 
 export default function Registros() {
   const router = useRouter();
