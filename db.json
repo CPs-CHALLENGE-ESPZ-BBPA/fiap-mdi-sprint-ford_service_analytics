@@ -6,7 +6,7 @@
       "modelo": "SE",
       "ano": 2018,
       "problema": "Bateria descarregada",
-      "custo": 300
+      "custo": 150000
     },
     {
       "id": "2",
@@ -14,7 +14,7 @@
       "modelo": "SE",
       "ano": 2019,
       "problema": "Troca de óleo",
-      "custo": 250
+      "custo": 85000
     },
     {
       "id": "3",
@@ -22,7 +22,7 @@
       "modelo": "Freestyle",
       "ano": 2020,
       "problema": "Freio traseiro desgastado",
-      "custo": 450
+      "custo": 320000
     },
     {
       "id": "4",
@@ -30,7 +30,7 @@
       "modelo": "Titanium",
       "ano": 2021,
       "problema": "Suspensão dianteira",
-      "custo": 1200
+      "custo": 850000
     },
     {
       "id": "5",
@@ -38,16 +38,15 @@
       "modelo": "XLS",
       "ano": 2022,
       "problema": "Troca de filtros",
-      "custo": 350
+      "custo": 120000
     },
-
     {
       "id": "6",
       "nome": "Ford Ka",
       "modelo": "SE",
       "ano": 2018,
       "problema": "Bateria descarregada",
-      "custo": 300
+      "custo": 150000
     },
     {
       "id": "7",
@@ -55,7 +54,7 @@
       "modelo": "SE",
       "ano": 2019,
       "problema": "Troca de óleo",
-      "custo": 250
+      "custo": 95000
     },
     {
       "id": "8",
@@ -63,7 +62,7 @@
       "modelo": "Freestyle",
       "ano": 2020,
       "problema": "Freio traseiro desgastado",
-      "custo": 450
+      "custo": 320000
     },
     {
       "id": "9",
@@ -71,7 +70,7 @@
       "modelo": "SE",
       "ano": 2018,
       "problema": "Bateria descarregada",
-      "custo": 300
+      "custo": 150000
     },
     {
       "id": "10",
@@ -79,7 +78,15 @@
       "modelo": "Titanium",
       "ano": 2021,
       "problema": "Suspensão dianteira",
-      "custo": 1200
+      "custo": 120000
+    },
+    {
+      "nome": "adsa",
+      "modelo": "tr 4",
+      "ano": 2022,
+      "problema": "ronaldo",
+      "custo": 100000,
+      "id": "Qkbw7Ic"
     }
   ]
 }
