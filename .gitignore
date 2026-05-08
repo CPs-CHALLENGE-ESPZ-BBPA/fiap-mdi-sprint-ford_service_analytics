@@ -39,3 +39,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# claude
+/.claude
+
+# pastas
+/challenge_cyber
+/challenge_mobile
+/Aprendizado
+/challenge
