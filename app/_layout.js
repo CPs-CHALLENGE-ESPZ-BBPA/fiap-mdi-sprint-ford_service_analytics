@@ -1,71 +1,52 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
+import { View, Platform } from "react-native";
+import { useEffect } from "react";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function Layout() {
-  return (
-    <View style={{ flex: 1, backgroundColor: "#003C71" }}>
-      {/* Azul escuro Ford */}
-      <StatusBar style="light" />
+  useEffect(() => {
+    const setup = async () => {
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "Ford Service Analytics",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#0061A8",
+        });
+      }
+      if (Platform.OS !== "web") {
+        await Notifications.requestPermissionsAsync();
+      }
+    };
+    setup();
+  }, []);
 
+  return (
+    <View style={{ flex: 1, backgroundColor: "#001E3C" }}>
+      <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: "#0061A8", // Azul escuro Ford
-          },
-          headerTintColor: "#FFFFFF", // Branco para o título do cabeçalho
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
-          contentStyle: {
-            backgroundColor: "#F4F4F4",  // Cor neutra para o fundo da tela
-          },
+          headerStyle: { backgroundColor: "#0061A8" },
+          headerTintColor: "#FFFFFF",
+          headerTitleStyle: { fontWeight: "bold", fontSize: 17 },
+          contentStyle: { backgroundColor: "#001E3C" },
           animation: "slide_from_right",
         }}
       >
-        <Stack.Screen
-          name="index"
-          options={{
-            title: "Home",
-            headerStyle: {
-              backgroundColor: "#0061A8", // Azul claro Ford
-            },
-            headerTintColor: "#FFFFFF", // Texto branco para contraste
-          }}
-        />
-
-        <Stack.Screen
-          name="about"
-          options={{
-            title: "Sobre",
-            headerStyle: {
-              backgroundColor: "#0061A8", // Azul claro Ford
-            },
-            headerTintColor: "#FFFFFF",
-          }}
-        />
-
-        <Stack.Screen
-          name="login"
-          options={{
-            title: "Login",
-            headerStyle: {
-              backgroundColor: "#0061A8", // Azul claro Ford
-            },
-            headerTintColor: "#FFFFFF",
-          }}
-        />
-
-        <Stack.Screen
-          name="registros"
-          options={{
-            title: "Registros",
-            headerStyle: {
-              backgroundColor: "#0061A8", // Azul claro Ford
-            },
-            headerTintColor: "#FFFFFF",
-          }}
-        />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="about" options={{ title: "Sobre" }} />
+        <Stack.Screen name="login" options={{ title: "Login" }} />
+        <Stack.Screen name="cadastro" options={{ title: "Cadastrar Veículo" }} />
+        <Stack.Screen name="registros" options={{ title: "Dashboard" }} />
       </Stack>
     </View>
   );
