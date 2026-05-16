@@ -1,12 +1,15 @@
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Image, KeyboardAvoidingView, Platform, ScrollView, Alert,
+  Image, KeyboardAvoidingView, Platform, ScrollView, Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+
+const USUARIOS_KEY = '@usuarios';
+const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
 
 const notify = async (title, body) => {
   if (Platform.OS === 'web') return;
@@ -20,6 +23,22 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [focusedField, setFocusedField] = useState(null);
+  const [showSenha, setShowSenha] = useState(false);
+
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+  const toastAnim = useRef(new Animated.Value(0)).current;
+
+  const showToast = (message, type = 'success') => {
+    toastAnim.setValue(0);
+    setToast({ message, type });
+    Animated.sequence([
+      Animated.timing(toastAnim, { toValue: 1, duration: 220, useNativeDriver: true }),
+      Animated.delay(2600),
+      Animated.timing(toastAnim, { toValue: 0, duration: 220, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const toastTranslateX = toastAnim.interpolate({ inputRange: [0, 1], outputRange: [120, 0] });
 
   useEffect(() => {
     const checkSession = async () => {
@@ -32,18 +51,38 @@ export default function Login() {
   }, []);
 
   const validarLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Campos obrigatórios', 'Preencha e-mail e senha para continuar.');
+    if (!email.trim() || !senha) {
+      showToast('Preencha e-mail e senha para continuar', 'error');
       return;
     }
-    if (email === 'a' && senha === 'a') {
+
+    // Credencial de demo
+    if (email.trim() === 'a' && senha === 'a') {
       try {
-        await AsyncStorage.setItem('userSession', JSON.stringify({ email, loggedAt: Date.now() }));
+        await AsyncStorage.setItem('userSession', JSON.stringify({ email: 'a', nome: 'Admin', loggedAt: Date.now() }));
       } catch (_) {}
       await notify('Login realizado!', 'Bem-vindo ao Ford Service Analytics.');
       router.replace('/cadastro');
-    } else {
-      Alert.alert('Acesso negado', 'E-mail ou senha inválidos.');
+      return;
+    }
+
+    // Verificar usuários cadastrados
+    try {
+      const raw = await AsyncStorage.getItem(USUARIOS_KEY);
+      const usuarios = raw ? JSON.parse(raw) : [];
+      const usuario = usuarios.find(
+        u => u.email === email.trim().toLowerCase() && u.senha === senha
+      );
+
+      if (usuario) {
+        await AsyncStorage.setItem('userSession', JSON.stringify({ email: usuario.email, nome: usuario.nome, loggedAt: Date.now() }));
+        await notify('Login realizado!', `Bem-vindo(a), ${usuario.nome.split(' ')[0]}!`);
+        router.replace('/cadastro');
+      } else {
+        showToast('E-mail ou senha inválidos', 'error');
+      }
+    } catch (_) {
+      showToast('Erro ao verificar credenciais. Tente novamente.', 'error');
     }
   };
 
@@ -96,12 +135,15 @@ export default function Login() {
                 style={styles.input}
                 placeholder="Digite sua senha"
                 placeholderTextColor="#3A5A7A"
-                secureTextEntry
+                secureTextEntry={!showSenha}
                 value={senha}
                 onChangeText={setSenha}
                 onFocus={() => setFocusedField('senha')}
                 onBlur={() => setFocusedField(null)}
               />
+              <TouchableOpacity onPress={() => setShowSenha(p => !p)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons name={showSenha ? 'eye-off-outline' : 'eye-outline'} size={18} color="#4A9FE0" />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -111,122 +153,93 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
+        {/* Link cadastro */}
+        <TouchableOpacity style={styles.linkCadastro} onPress={() => router.push('/nova-conta')} activeOpacity={0.8}>
+          <Text style={styles.linkCadastroText}>Não tem conta? </Text>
+          <Text style={styles.linkCadastroDestaque}>Cadastre-se</Text>
+          <Ionicons name="arrow-forward-outline" size={14} color="#4A9FE0" style={{ marginLeft: 2 }} />
+        </TouchableOpacity>
+
         <Text style={styles.footer}>Ford Motor Company © 2025</Text>
       </ScrollView>
+
+      {/* Toast */}
+      <Animated.View
+        style={[
+          styles.toast,
+          toast.type === 'success' ? styles.toastSuccess
+            : toast.type === 'error' ? styles.toastError
+            : styles.toastWarning,
+          { opacity: toastAnim, transform: [{ translateX: toastTranslateX }] },
+        ]}
+        pointerEvents="none"
+      >
+        <Ionicons name={TOAST_ICONS[toast.type]} size={18} color="#FFFFFF" />
+        <Text style={styles.toastText}>{toast.message}</Text>
+      </Animated.View>
+
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  keyboardView: {
-    flex: 1,
-    backgroundColor: '#001E3C',
-  },
+  keyboardView: { flex: 1, backgroundColor: '#001E3C' },
   container: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#001E3C',
-    padding: 24,
+    flexGrow: 1, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#001E3C', padding: 24,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 36,
-  },
-  logo: {
-    width: 130,
-    height: 65,
-    resizeMode: 'contain',
-    marginBottom: 18,
-  },
-  appName: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-    textAlign: 'center',
-  },
-  appSubtitle: {
-    fontSize: 11,
-    color: '#4A9FE0',
-    marginTop: 6,
-    letterSpacing: 2.5,
-    textAlign: 'center',
-  },
+  header: { alignItems: 'center', marginBottom: 36 },
+  logo: { width: 130, height: 65, resizeMode: 'contain', marginBottom: 18 },
+  appName: { fontSize: 26, fontWeight: 'bold', color: '#FFFFFF', letterSpacing: 0.5, textAlign: 'center' },
+  appSubtitle: { fontSize: 11, color: '#4A9FE0', marginTop: 6, letterSpacing: 2.5, textAlign: 'center' },
+
   card: {
-    width: '100%',
-    backgroundColor: '#002B5C',
-    borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#1A4A7A',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
+    width: '100%', backgroundColor: '#002B5C', borderRadius: 20, padding: 24,
+    borderWidth: 1, borderColor: '#1A4A7A', elevation: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35, shadowRadius: 10,
   },
-  cardTitle: {
-    fontSize: 19,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 22,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 11,
-    color: '#8FBAD8',
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    marginBottom: 7,
-  },
+  cardTitle: { fontSize: 19, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 22 },
+
+  inputGroup: { marginBottom: 16 },
+  label: { fontSize: 11, color: '#8FBAD8', fontWeight: '700', letterSpacing: 1.2, marginBottom: 7 },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#001A38',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#1A4A7A',
-    paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#001A38', borderRadius: 10,
+    borderWidth: 1, borderColor: '#1A4A7A', paddingHorizontal: 14,
   },
-  inputWrapperFocused: {
-    borderColor: '#4A9FE0',
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: '#FFFFFF',
-    fontSize: 15,
-  },
+  inputWrapperFocused: { borderColor: '#4A9FE0' },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, height: 50, color: '#FFFFFF', fontSize: 15 },
+
   botao: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0061A8',
-    paddingVertical: 15,
-    borderRadius: 12,
-    marginTop: 10,
-    gap: 8,
-    elevation: 6,
-    shadowColor: '#0061A8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#0061A8', paddingVertical: 15, borderRadius: 12,
+    marginTop: 10, gap: 8, elevation: 6,
+    shadowColor: '#0061A8', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.45, shadowRadius: 8,
   },
-  textoBotao: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
+  textoBotao: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
+
+  linkCadastro: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    marginTop: 20, paddingVertical: 10,
   },
-  footer: {
-    marginTop: 36,
-    color: '#2A5A8A',
-    fontSize: 12,
-    letterSpacing: 0.5,
+  linkCadastroText: { color: '#8FBAD8', fontSize: 14 },
+  linkCadastroDestaque: { color: '#4A9FE0', fontSize: 14, fontWeight: 'bold' },
+
+  footer: { marginTop: 24, color: '#2A5A8A', fontSize: 12, letterSpacing: 0.5 },
+
+  toast: {
+    position: 'absolute', bottom: 28, right: 16,
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
+    maxWidth: 290, elevation: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8,
   },
+  toastSuccess: { backgroundColor: '#1A6B3A' },
+  toastError:   { backgroundColor: '#7A1A1A' },
+  toastWarning: { backgroundColor: '#6B4A00' },
+  toastText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600', flex: 1 },
 });

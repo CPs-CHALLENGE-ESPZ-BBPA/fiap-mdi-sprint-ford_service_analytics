@@ -87,6 +87,22 @@
       "problema": "ronaldo",
       "custo": 100000,
       "id": "Qkbw7Ic"
+    },
+    {
+      "nome": "Ford Bronco Sport Badlands 2.0L TB 4WD Aut.",
+      "modelo": "1.0",
+      "ano": 32000,
+      "problema": "Câmbio",
+      "custo": 100000,
+      "id": "d4xL5gB"
+    },
+    {
+      "nome": "Ford Aspire 1.3",
+      "modelo": "2.0",
+      "ano": 1995,
+      "problema": "direção",
+      "custo": 90000,
+      "id": "v3ZzSfI"
     }
   ]
 }

@@ -43,6 +43,7 @@ export default function Layout() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="nova-conta" options={{ title: "Criar Conta" }} />
         <Stack.Screen name="about" options={{ title: "Sobre" }} />
         <Stack.Screen name="login" options={{ title: "Login" }} />
         <Stack.Screen name="cadastro" options={{ title: "Cadastrar Veículo" }} />
