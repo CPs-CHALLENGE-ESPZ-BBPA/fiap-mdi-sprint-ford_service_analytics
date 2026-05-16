@@ -1,62 +1,24 @@
 # Ford Service Analytics
 
-Aplicativo mobile de gerenciamento de oficina Ford com análise de dados em tempo real, desenvolvido em **React Native + Expo** como parte do **Mobile Application Development Challenge** da FIAP.
+Aplicativo mobile para gerenciamento de pós-venda Ford, desenvolvido em **React Native + Expo** como solução para o **Desafio 02 — VIN Share** do Mobile Application Development Challenge da FIAP.
 
 ---
 
 ## a) Sobre o Projeto
 
-### O Desafio
+**Desafio escolhido:** Desafio 02 — Impulsionando o VIN Share na América do Sul.
 
-O **Mobile Application Development Challenge** proposto pela Ford pede a criação de um aplicativo mobile funcional que apoie analistas da marca a **rastrear veículos atendidos na oficina, identificar problemas recorrentes e analisar custos de manutenção**, com foco em aumentar o VIN Share por meio de decisões orientadas a dados.
+O VIN Share mede a porcentagem de veículos Ford que retornam à rede oficial para manutenção. O app ataca esse problema em três frentes: registra atendimentos para identificar padrões, analisa dados em tempo real para orientar decisões, e oferece um **programa de fidelidade com descontos progressivos** para incentivar o retorno do cliente à rede Ford — fechando o ciclo de retenção dentro da própria ferramenta do analista.
 
-**Por que esse desafio foi escolhido?**
-A área de pós-venda é estratégica para a Ford: cada veículo que retorna à oficina oficial representa uma oportunidade de fidelização. O time identificou que a falta de um sistema mobile ágil faz com que analistas percam padrões de falha que poderiam ser detectados rapidamente. O desafio mobile permitiu atacar esse problema real com uma solução end-to-end, desde o login seguro até dashboards analíticos.
+### Funcionalidades
 
----
-
-### Funcionalidades Implementadas
-
-#### Autenticação
-- Login com validação de campos e feedback via toast animado
-- Dois níveis de autenticação: credencial de demo (`a/a`) e usuários cadastrados via AsyncStorage
-- Persistência de sessão — usuário permanece logado entre sessões
-- Redirecionamento automático para o cadastro quando sessão já existe
-- Notificação local ao realizar login com sucesso
-
-#### Cadastro de Novo Usuário
-- Tela dedicada (`/nova-conta`) para criação de conta
-- Campos: Nome Completo, E-mail, Senha e Confirmação de Senha
-- Validações: nome mínimo 2 caracteres, e-mail com regex, senha mínimo 6 caracteres, senhas coincidentes
-- Verificação de e-mail duplicado no AsyncStorage antes de salvar
-- Armazenamento no AsyncStorage com schema `{ nome, email, senha, criadoEm }`
-- Toggle show/hide senha em ambos os campos de senha
-- Feedback via toast animado para cada tipo de erro
-
-#### Cadastro de Veículo
-- Seleção de **Nome do Veículo** via integração com a **API FIPE** (fonte de dados externa obrigatória)
-  - Lista de modelos Ford carregada automaticamente ao entrar na tela
-  - Seleção de Ano de Fabricação carregada dinamicamente após escolher o modelo
-  - Modal bottom-sheet com busca em tempo real por nome do modelo/ano
-  - Badge "DADOS VIA API FIPE" indicando a origem dos dados
-- Campos de texto: Modelo/Versão, Problema e Custo (R$)
-- Validação completa: ano entre 1900 e ano atual, custo positivo, campos obrigatórios
-- `maxLength` em todos os campos
-- `KeyboardAvoidingView` para não ocultar o formulário pelo teclado
-- Verificação de conectividade antes de enviar (expo-network)
-- Envio via POST para a API REST mock
-- Notificação local ao cadastrar veículo com sucesso
-- Feedback detalhado via toast animado por campo inválido
-
-#### Dashboard de Registros
-- KPI cards: total de veículos, custo total e ticket médio (formatados em "mil"/"mi")
-- Gráfico de barras dos 5 problemas mais frequentes (react-native-chart-kit + fallback web)
-- Top 3 modelos com mais ocorrências (medalhas ouro/prata/bronze)
-- Ano mais frequente nos registros
-- Tabela completa com scroll horizontal e linhas alternadas
-- Cache offline: dados salvos no AsyncStorage após cada fetch
-- Modo offline com banner de aviso e notificação local
-- Botão "Sair" que encerra sessão e retorna ao login
+| Tela | O que faz |
+|------|-----------|
+| **Login** | Autenticação com validação, sessão persistente via AsyncStorage, notificação local no login |
+| **Criar Conta** | Cadastro de usuário com validação de e-mail, senha com confirmação e verificação de duplicatas |
+| **Cadastro de Veículo** | Seleção de modelo e ano via **API FIPE** (modal com busca em tempo real), validação por campo, notificação ao cadastrar |
+| **Dashboard** | KPIs (total, custo total, ticket médio), gráfico de barras dos 5 problemas mais frequentes, top 3 modelos, tabela completa com coluna de problema expansível, cache offline com banner |
+| **Programa de Fidelidade** | Agendamento de retorno por cliente, **comparativo Ford vs. mercado**, desconto progressivo de 5% por visita (máximo 30%), notificação push 2 dias antes do agendamento, preview em tempo real do desconto |
 
 ---
 
@@ -73,78 +35,51 @@ A área de pós-venda é estratégica para a Ford: cada veículo que retorna à 
 
 ## c) Como Rodar o Projeto
 
-### Pré-requisitos
+**Pré-requisitos:** Node.js 18+, Expo Go no celular ou emulador configurado.
 
-- **Node.js** 18 ou superior
-- **Expo Go** instalado no celular **ou** emulador Android/iOS configurado
-- Conexão com a internet (para carregar os modelos via API FIPE)
-
-### Passo a passo
-
-**1. Clonar o repositório**
 ```bash
-git clone https://github.com/brnleao/challenge-1sem-3ano-mobile.git
-cd challenge-1sem-3ano-mobile
-```
-
-**2. Instalar dependências**
-```bash
+# 1. Clonar e instalar
+git clone https://github.com/CPs-CHALLENGE-ESPZ-BBPA/fiap-mdi-sprint-ford_service_analytics.git
+cd fiap-mdi-sprint-ford_service_analytics
 npm install
-```
 
-**3. Iniciar a API mock (Terminal 1)**
-```bash
+# 2. Terminal 1 — API mock
 npm run api
-# json-server rodando em http://localhost:3000
+
+# 3. Terminal 2 — App
+npm start        # QR Code para Expo Go
+npm run android  # Emulador Android
+npm run web      # Navegador
 ```
 
-**4. Iniciar o aplicativo (Terminal 2)**
-```bash
-npm start          # Menu interativo com QR Code
-npm run android    # Emulador Android direto
-npm run ios        # Simulador iOS (somente Mac)
-npm run web        # Navegador
-```
-
-**5. Acessar o app**
-
-| Plataforma | URL da API usada internamente |
-|------------|-------------------------------|
-| Android (emulador) | `http://10.0.2.2:3000` |
-| iOS / Web | `http://localhost:3000` |
-
-### Credenciais de teste (demo)
-```
-E-mail: a
-Senha:  a
-```
-> Também é possível criar uma conta própria pela tela "Cadastre-se".
+**Credenciais de teste:** e-mail `a` / senha `a`  
+*(ou crie uma conta pela tela "Cadastre-se")*
 
 ---
 
 ## d) Demonstração Visual
 
-> **Atenção:** adicione os prints e o GIF/vídeo antes da entrega.
-> README sem demonstração visual = -50% na nota de Documentação.
+> ⚠️ **Adicione os prints e o GIF/vídeo antes da entrega.**  
+> README sem demonstração visual = **-50% automático** na nota de Documentação.
 
-### Telas do Aplicativo
+### Telas
 
-| Tela | Descrição |
-|------|-----------|
-| `screenshots/01-login.png` | Tela de login com campos de e-mail e senha |
-| `screenshots/02-nova-conta.png` | Tela de criação de conta com validações |
-| `screenshots/03-cadastro-fipe.png` | Seleção de veículo via modal FIPE |
-| `screenshots/04-cadastro-form.png` | Formulário de cadastro preenchido |
-| `screenshots/05-toast-sucesso.png` | Toast de confirmação após cadastro |
-| `screenshots/06-toast-erro.png` | Toast de erro com motivo específico |
-| `screenshots/07-dashboard-kpis.png` | Dashboard com KPI cards |
-| `screenshots/08-dashboard-grafico.png` | Gráfico de barras dos problemas |
-| `screenshots/09-dashboard-tabela.png` | Tabela completa de registros |
+| # | Arquivo | Tela |
+|---|---------|------|
+| 1 | `screenshots/01-login.png` | Login |
+| 2 | `screenshots/02-nova-conta.png` | Criar conta |
+| 3 | `screenshots/03-cadastro-fipe.png` | Modal de seleção FIPE |
+| 4 | `screenshots/04-cadastro-form.png` | Formulário de cadastro |
+| 5 | `screenshots/05-dashboard-kpis.png` | Dashboard — KPIs |
+| 6 | `screenshots/06-dashboard-grafico.png` | Dashboard — gráfico |
+| 7 | `screenshots/07-dashboard-tabela.png` | Dashboard — tabela |
+| 8 | `screenshots/08-fidelidade-lista.png` | Programa de Fidelidade |
+| 9 | `screenshots/09-fidelidade-form.png` | Agendamento de retorno |
+| 10 | `screenshots/10-toast.png` | Toast de feedback |
 
 ### Fluxo Principal
 
-> Adicione aqui um GIF ou vídeo demonstrando o fluxo:
-> Login → Cadastro de veículo (seleção FIPE) → Dashboard → Logout
+> Adicione aqui um GIF ou vídeo do fluxo: Login → Cadastro (FIPE) → Dashboard → Fidelidade → Agendamento
 
 ```
 [ GIF / vídeo aqui ]
@@ -154,91 +89,70 @@ Senha:  a
 
 ## e) Decisões Técnicas
 
-### Stack Escolhida
+### Stack
 
-| Tecnologia | Versão | Justificativa |
-|-----------|--------|---------------|
-| **Expo** | 55.0.9 | Toolchain completo sem configuração nativa; suporte a iOS, Android e Web em um único projeto |
-| **React Native** | 0.83.2 | Único framework que entrega código nativo real para as 3 plataformas com uma base JS/JSX |
-| **Expo Router** | 55.0.8 | Roteamento file-based (inspirado no Next.js), elimina boilerplate de navegação |
-| **AsyncStorage** | 2.2.0 | Persistência local sem servidor — ideal para sessão de usuário e cache offline |
-| **expo-notifications** | 55.x | Notificações locais nativas sem dependência de push server |
-| **expo-network** | 55.0.9 | Detecção de conectividade com uma linha, sem implementação manual |
-| **react-native-chart-kit** | 6.12.0 | Gráficos prontos para React Native com suporte a SVG |
-| **json-server** | 0.17.4 | API REST mock em segundos, sem backend real — perfeito para o escopo do challenge |
-| **API FIPE** | pública | Fonte de dados real de veículos brasileiros; sem autenticação, gratuita, confiável |
+| Tecnologia | Versão | Por quê |
+|-----------|--------|---------|
+| Expo | 55.0.9 | Toolchain completo, suporte iOS/Android/Web sem config nativa |
+| React Native | 0.83.2 | Código nativo real para as 3 plataformas com base JS/JSX |
+| Expo Router | 55.0.8 | Roteamento file-based, elimina boilerplate de navegação |
+| AsyncStorage | 2.2.0 | Persistência local para sessão, usuários, cache e agendamentos |
+| expo-notifications | 55.x | Notificações locais e agendadas sem push server |
+| expo-network | 55.0.9 | Detecção de conectividade em uma linha |
+| react-native-chart-kit | 6.12.0 | Gráfico de barras com SVG + fallback web via `View` |
+| json-server | 0.17.4 | API REST mock para o escopo do challenge |
+| API FIPE | pública | Dados reais de veículos Ford brasileiros, sem autenticação |
 
-### Estrutura do Projeto
+### Estrutura
 
 ```
-ford-service-analytics/
-├── app/
-│   ├── _layout.js       → Stack Navigator (Expo Router) + handler de notificações
-│   ├── index.js         → Tela de Login + verificação de sessão automática
-│   ├── nova-conta.js    → Tela de criação de conta (AsyncStorage)
-│   ├── cadastro.js      → Formulário de cadastro com integração FIPE
-│   └── registros.js     → Dashboard analítico com gráficos e KPIs
-├── assets/
-│   └── ford-logo.png    → Logo Ford
-├── db.json              → Banco de dados fake (json-server)
-└── package.json
+app/
+├── _layout.js      → Stack Navigator + handler de notificações
+├── index.js        → Login + verificação de sessão
+├── nova-conta.js   → Cadastro de usuário (AsyncStorage)
+├── cadastro.js     → Cadastro de veículo + integração FIPE
+├── registros.js    → Dashboard com analytics e cache offline
+└── fidelidade.js   → Programa de fidelidade + agendamentos
+assets/
+└── ford-logo.png
+db.json             → API mock (json-server)
 ```
 
 ### Fluxo de Navegação
 
 ```
-Login (index.js)
-  │
-  ├── Sessão existente ──────────────────────────────┐
-  ├── Login a/a ou usuário cadastrado → /cadastro ◄──┘
-  │                                         │
-  ├── Não tem conta? → /nova-conta          └── Ver Registros → /registros
-  │       │                                                          │
-  │       └── Conta criada → voltar ao Login                        └── Sair → /
-  └── Campos inválidos → toast de erro
+Login (/)
+ ├── Sessão existente → /cadastro (automático)
+ ├── Login válido     → /cadastro
+ │    └── Dashboard  → /registros
+ │         ├── Fidelidade → /fidelidade
+ │         └── Sair → /
+ └── Sem conta? → /nova-conta → Login
 ```
 
-### Integrações Realizadas
+### Integrações
 
-#### API FIPE (externa — obrigatória pelo challenge)
-- **Endpoint base:** `https://parallelum.com.br/fipe/api/v1`
-- **Marca Ford:** ID `22`
-- **Fluxo:** ao entrar na tela de cadastro, busca todos os modelos Ford (`GET /carros/marcas/22/modelos`). Ao selecionar um modelo, busca os anos disponíveis (`GET /carros/marcas/22/modelos/{codigo}/anos`).
-- **UX:** modal bottom-sheet com FlatList + campo de busca em tempo real (filter por `item.nome.toLowerCase().includes(query)`).
+**API FIPE** — `GET parallelum.com.br/fipe/api/v1/carros/marcas/22/modelos` carrega todos os modelos Ford ao abrir o cadastro. Ao selecionar um modelo, busca os anos (`/modelos/{codigo}/anos`). UX via modal bottom-sheet com FlatList + filtro em tempo real.
 
-#### API REST mock (json-server)
-- **Endpoint:** `GET /carros` e `POST /carros`
-- **URL dinâmica por plataforma** via `Platform.select()` — Android usa `10.0.2.2` (redireciona do emulador para o host), iOS e Web usam `localhost`.
+**json-server** — `GET /carros` e `POST /carros`. URL dinâmica via `Platform.select()`: Android emulador usa `10.0.2.2`, iOS/Web usam `localhost`.
 
-#### AsyncStorage
-- **`@usuarios`** — array de usuários cadastrados pela tela nova-conta
-- **`userSession`** — objeto com `{ email, nome, loggedAt }` para persistência de sessão
-- **`@carrosCache`** — último snapshot de dados do dashboard para modo offline
+**AsyncStorage** — 4 chaves: `userSession` (sessão), `@usuarios` (contas), `carsCache` (cache offline do dashboard), `@agendamentos` (retornos agendados no programa de fidelidade).
 
-### Decisões de Arquitetura
+**expo-notifications** — notificações imediatas (login, cadastro, offline) e notificação futura agendada (2 dias antes do retorno marcado no programa de fidelidade). Notificação cancelada automaticamente ao remover o agendamento.
 
-**Estado local (`useState`)** — sem Context API ou Redux. O escopo do app não justifica gerenciamento de estado global; cada tela é auto-suficiente.
+### Arquitetura
 
-**Toast animado no lugar de `Alert.alert`** — `Alert.alert` bloqueia a UI com um modal nativo que o usuário precisa dispensar. O toast usa `Animated.sequence` (slide from right + fade) com `pointerEvents="none"`, não interrompe o fluxo e auto-dismiss em ~3 segundos. É mais adequado para feedback não-crítico em apps modernos.
-
-**Dois níveis de autenticação** — a credencial `a/a` é mantida intencionalmente como atalho para demonstração ao professor, sem impactar o fluxo real de criação e login de contas via AsyncStorage.
-
-**Fetch nativo** — sem axios ou SWR. Fetch padrão do JavaScript é suficiente para as 2–3 chamadas que o app faz; adicionar uma biblioteca seria over-engineering para esse escopo.
+- **Estado local** (`useState`) por tela — sem Context/Redux. Cada tela é auto-suficiente e o escopo não justifica estado global.
+- **Toast animado** no lugar de `Alert.alert` — slide from right + `pointerEvents="none"`, não bloqueia a UI e auto-dismiss em 3s.
+- **Dois níveis de auth** — `a/a` como atalho de demo, AsyncStorage `@usuarios` para contas reais.
+- **Programa de fidelidade** — desconto calculado como `min(visitas × 5%, 30%)`. Mercado estimado em 7% abaixo do preço Ford: a partir da 2ª visita o desconto supera essa diferença e a Ford fica mais barata que o mercado, mostrando o valor concreto de retornar à rede oficial.
 
 ---
 
 ## f) Próximos Passos
 
-Com mais tempo, o grupo implementaria:
-
-1. **Hash de senha** — atualmente a senha é salva em texto plano no AsyncStorage. Implementaríamos `expo-crypto` para gerar um SHA-256 antes de armazenar.
-
-2. **Backend real** — substituir o json-server por uma API Node.js/Express com autenticação JWT, eliminando a dependência de localhost.
-
-3. **Filtros e busca no dashboard** — filtrar registros por modelo, ano ou faixa de custo diretamente na tabela.
-
-4. **Exportação de relatório** — gerar um PDF ou CSV dos registros para ser enviado por e-mail ao gerente da oficina.
-
-5. **Foto do veículo** — integrar `expo-image-picker` para anexar foto do problema ao registro.
-
-6. **Testes automatizados** — cobertura de testes unitários com Jest para as funções de validação e integração com a API FIPE.
+1. **Hash de senha** — salvar SHA-256 via `expo-crypto` ao invés de texto plano
+2. **Backend real** — substituir json-server por API com autenticação JWT
+3. **Vínculo fidelidade ↔ registros** — ao cadastrar um veículo, oferecer agendamento direto do retorno sem preencher dados novamente
+4. **Filtros no dashboard** — filtrar tabela por modelo, ano ou faixa de custo
+5. **Exportação** — gerar PDF/CSV dos registros para o gerente da oficina
