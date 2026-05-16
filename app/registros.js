@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, FlatList, ScrollView, StyleSheet,
-  TouchableOpacity, Dimensions, Platform,
+  TouchableOpacity, Dimensions, Platform, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -40,10 +40,12 @@ export default function Registros() {
   const router = useRouter();
   const [cars, setCars] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchCars(); }, []);
 
   const fetchCars = async () => {
+    setLoading(true);
     try {
       const networkState = await Network.getNetworkStateAsync();
       const connected = networkState.isConnected ?? true;
@@ -55,6 +57,7 @@ export default function Registros() {
           setCars(JSON.parse(cached));
           await notify('Modo offline', 'Sem conexão — exibindo dados salvos em cache.');
         }
+        setLoading(false);
         return;
       }
 
@@ -68,6 +71,7 @@ export default function Registros() {
         if (cached) setCars(JSON.parse(cached));
       } catch (_) {}
     }
+    setLoading(false);
   };
 
   const handleLogout = async () => {
@@ -106,19 +110,41 @@ export default function Registros() {
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
+  const COLUMNS = [
+    { key: 'nome',     header: 'Nome',     width: 140 },
+    { key: 'modelo',   header: 'Modelo',   width: 100 },
+    { key: 'ano',      header: 'Ano',      width: 65  },
+    { key: 'problema', header: 'Problema', width: 190, wrap: true },
+    { key: 'custo',    header: 'Custo',    width: 95  },
+  ];
+
+  const fmtCusto = (v = 0) =>
+    v >= 1000000 ? `R$${(v / 1000000).toFixed(1).replace('.', ',')} mi`
+    : v >= 1000  ? `R$${(v / 1000).toFixed(0)} mil`
+    : `R$${v.toFixed(0)}`;
+
   const renderRow = ({ item, index }) => (
     <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
-      <Text style={styles.cell}>{item.nome}</Text>
-      <Text style={styles.cell}>{item.modelo}</Text>
-      <Text style={styles.cell}>{item.ano}</Text>
-      <Text style={styles.cell}>{item.problema}</Text>
-      <Text style={[styles.cell, styles.cellCusto]}>
-        {(() => { const v = item.custo || 0; return v >= 1000000 ? `R$${(v/1000000).toFixed(1).replace('.', ',')} mi` : v >= 1000 ? `R$${(v/1000).toFixed(0)} mil` : `R$${v.toFixed(0)}`; })()}
-      </Text>
+      {COLUMNS.map(col => (
+        <Text
+          key={col.key}
+          style={[styles.cell, col.key === 'custo' && styles.cellCusto, { width: col.width }]}
+          {...(!col.wrap && { numberOfLines: 1, ellipsizeMode: 'tail' })}
+        >
+          {col.key === 'custo' ? fmtCusto(item.custo) : String(item[col.key] ?? '')}
+        </Text>
+      ))}
     </View>
   );
 
-  const TABLE_HEADERS = ['Nome', 'Modelo', 'Ano', 'Problema', 'Custo'];
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4A9FE0" />
+        <Text style={styles.loadingText}>Carregando registros...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -244,8 +270,10 @@ export default function Registros() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View>
             <View style={[styles.row, styles.headerRow]}>
-              {TABLE_HEADERS.map(h => (
-                <Text key={h} style={[styles.cell, styles.headerCell]}>{h}</Text>
+              {COLUMNS.map(col => (
+                <Text key={col.key} style={[styles.cell, styles.headerCell, { width: col.width }]} numberOfLines={1}>
+                  {col.header}
+                </Text>
               ))}
             </View>
             <FlatList
@@ -259,6 +287,15 @@ export default function Registros() {
       </View>
 
       {/* Botões de ação */}
+      <TouchableOpacity
+        style={[styles.botao, styles.botaoFidelidade]}
+        onPress={() => router.push('/fidelidade')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="ribbon-outline" size={18} color="#FFFFFF" />
+        <Text style={styles.textoBotao}>Programa de Fidelidade</Text>
+      </TouchableOpacity>
+
       <View style={styles.actionsRow}>
         <TouchableOpacity
           style={[styles.botao, { flex: 1, marginRight: 8 }]}
@@ -289,6 +326,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#001E3C',
     padding: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#001E3C',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+  },
+  loadingText: { color: '#8FBAD8', fontSize: 14 },
   offlineBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -393,7 +438,7 @@ const styles = StyleSheet.create({
   headerRow: { backgroundColor: '#001A38' },
   rowEven: { backgroundColor: '#002447' },
   rowOdd: { backgroundColor: '#002B5C' },
-  cell: { padding: 10, minWidth: 105, textAlign: 'center', color: '#FFFFFF', fontSize: 13 },
+  cell: { paddingVertical: 10, paddingHorizontal: 8, textAlign: 'center', color: '#FFFFFF', fontSize: 13, textAlignVertical: 'top' },
   headerCell: {
     color: '#8FBAD8',
     fontWeight: '700',
@@ -404,6 +449,7 @@ const styles = StyleSheet.create({
   cellCusto: { color: '#4A9FE0', fontWeight: '600' },
 
   // Botões
+  botaoFidelidade: { marginBottom: 10, backgroundColor: '#1A5A2A', borderWidth: 1, borderColor: '#2A7A3A', elevation: 4, shadowColor: '#1A5A2A' },
   actionsRow: { flexDirection: 'row', marginBottom: 32 },
   botao: {
     flexDirection: 'row',

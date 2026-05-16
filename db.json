@@ -81,28 +81,20 @@
       "custo": 120000
     },
     {
-      "nome": "adsa",
-      "modelo": "tr 4",
-      "ano": 2022,
-      "problema": "ronaldo",
-      "custo": 100000,
-      "id": "Qkbw7Ic"
+      "nome": "Ford Crown Victoria LX 4.6",
+      "modelo": "3.0",
+      "ano": 1992,
+      "problema": "Motor Fundido",
+      "custo": 200000,
+      "id": "wu7D76X"
     },
     {
-      "nome": "Ford Bronco Sport Badlands 2.0L TB 4WD Aut.",
-      "modelo": "1.0",
-      "ano": 32000,
-      "problema": "Câmbio",
-      "custo": 100000,
-      "id": "d4xL5gB"
-    },
-    {
-      "nome": "Ford Aspire 1.3",
+      "nome": "Ford Escort Hobby 1.0",
       "modelo": "2.0",
-      "ano": 1995,
-      "problema": "direção",
-      "custo": 90000,
-      "id": "v3ZzSfI"
+      "ano": 1996,
+      "problema": "Bomba de Gasolina, Troca de Óleo, Ar-Condicionado, Motor, Vela, Vidro Quebrado",
+      "custo": 300000,
+      "id": "cCW2aot"
     }
   ]
 }

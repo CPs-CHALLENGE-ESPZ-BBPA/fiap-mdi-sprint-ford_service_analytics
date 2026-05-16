@@ -28,7 +28,7 @@ const FORD_ID = '22';
 const TEXT_FIELDS = [
   { key: 'modelo',   label: 'MODELO / VERSÃO',  placeholder: 'ex: SE 1.0',        icon: 'build-outline',   keyboard: 'default',     max: 50  },
   { key: 'problema', label: 'PROBLEMA',          placeholder: 'ex: Troca de óleo', icon: 'warning-outline', keyboard: 'default',     max: 100 },
-  { key: 'custo',    label: 'CUSTO (R$)',         placeholder: 'ex: 350000',        icon: 'cash-outline',    keyboard: 'decimal-pad', max: 10  },
+  { key: 'custo',    label: 'CUSTO DO VEÍCULO (R$)',         placeholder: 'ex: 350000',        icon: 'cash-outline',    keyboard: 'decimal-pad', max: 10  },
 ];
 
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
