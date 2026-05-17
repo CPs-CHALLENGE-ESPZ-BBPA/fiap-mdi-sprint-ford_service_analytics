@@ -16,7 +16,7 @@ O VIN Share mede a porcentagem de veículos Ford que retornam à rede oficial pa
 |------|-----------|
 | **Login** | Autenticação com validação, sessão persistente via AsyncStorage, notificação local no login |
 | **Criar Conta** | Cadastro de usuário com validação de e-mail, senha com confirmação e verificação de duplicatas |
-| **Cadastro de Veículo** | Seleção de modelo e ano via **API FIPE** (modal com busca em tempo real), validação por campo, notificação ao cadastrar |
+| **Cadastro de Veículo** | Seleção de modelo e ano via **API FIPE** (modal com busca em tempo real), botão "Buscar Preço Tabela FIPE" pré-preenche o valor automaticamente após veículo e ano selecionados, campo editável, validação por campo, notificação ao cadastrar |
 | **Dashboard** | KPIs (total, custo total, ticket médio), gráfico de barras dos 5 problemas mais frequentes, top 3 modelos, tabela completa com coluna de problema expansível, cache offline com banner |
 | **Programa de Fidelidade** | Agendamento de retorno por cliente, **comparativo Ford vs. mercado**, desconto progressivo de 5% por visita (máximo 30%), notificação push 2 dias antes do agendamento, preview em tempo real do desconto |
 
@@ -131,7 +131,7 @@ Login (/)
 
 ### Integrações
 
-**API FIPE** — `GET parallelum.com.br/fipe/api/v1/carros/marcas/22/modelos` carrega todos os modelos Ford ao abrir o cadastro. Ao selecionar um modelo, busca os anos (`/modelos/{codigo}/anos`). UX via modal bottom-sheet com FlatList + filtro em tempo real.
+**API FIPE** — 3 endpoints encadeados: `GET /carros/marcas/22/modelos` carrega todos os modelos Ford ao abrir o cadastro; ao selecionar um modelo, busca os anos (`/modelos/{codigo}/anos`); com veículo e ano definidos, o botão "Buscar Preço Tabela FIPE" consulta o valor real (`/modelos/{codigo}/anos/{anoCodigo}`) e pré-preenche o campo de custo. UX via modal bottom-sheet com FlatList + filtro em tempo real.
 
 **json-server** — `GET /carros` e `POST /carros`. URL dinâmica via `Platform.select()`: Android emulador usa `10.0.2.2`, iOS/Web usam `localhost`.
 
