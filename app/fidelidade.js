@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const KEY = '@agendamentos';
 const FATOR_MERCADO = 0.93; // oficinas independentes ~7% mais baratas em média (peças originais vs. paralelas)
@@ -38,6 +39,7 @@ const TIER_VISITS = [1, 2, 3, 4, 6];
 
 export default function Fidelidade() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [agendamentos, setAgendamentos] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -184,7 +186,7 @@ export default function Fidelidade() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }} showsVerticalScrollIndicator={false}>
 
         {/* KPIs */}
         <View style={styles.kpiRow}>
@@ -211,7 +213,7 @@ export default function Fidelidade() {
             <Ionicons name="ribbon-outline" size={17} color="#4A9FE0" />
             <Text style={styles.cardTitle}>Programa de Fidelidade</Text>
           </View>
-          <View style={styles.tiersRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tiersRow}>
             {TIER_VISITS.map((v, i) => {
               const desc = getDesconto(v);
               const max  = desc === 30;
@@ -222,7 +224,7 @@ export default function Fidelidade() {
                 </View>
               );
             })}
-          </View>
+          </ScrollView>
           <Text style={styles.tierNote}>
             A cada visita concluída, o desconto cresce 5% — chegando a 30% na 6ª visita.
             Com fidelidade máxima, a Ford fica mais barata que o mercado.
@@ -350,7 +352,7 @@ export default function Fidelidade() {
       <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={() => setModalVisible(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
+            <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20) }]}>
 
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Agendar Retorno</Text>
@@ -494,10 +496,10 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#1A3A5C' },
   cardTitle:  { color: '#FFFFFF', fontSize: 15, fontWeight: 'bold' },
 
-  tiersRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  tiersRow: { flexDirection: 'row', marginBottom: 12, gap: 6 },
   tier: {
-    flex: 1, alignItems: 'center', backgroundColor: '#001A38',
-    borderRadius: 10, paddingVertical: 10, marginHorizontal: 3,
+    width: 90, alignItems: 'center', backgroundColor: '#001A38',
+    borderRadius: 10, paddingVertical: 10, paddingHorizontal: 4,
     borderWidth: 1, borderColor: '#1A4A7A',
   },
   tierMax:         { borderColor: '#4AE07A', backgroundColor: '#00261A' },
@@ -593,7 +595,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 28, right: 16,
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
-    maxWidth: 290, elevation: 12,
+    maxWidth: '85%', elevation: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35, shadowRadius: 8,
   },

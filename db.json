@@ -95,6 +95,22 @@
       "problema": "Bomba de Gasolina, Troca de Óleo, Ar-Condicionado, Motor, Vela, Vidro Quebrado",
       "custo": 300000,
       "id": "cCW2aot"
+    },
+    {
+      "nome": "Ford Escort GLX 1.6i",
+      "modelo": "1.0",
+      "ano": 1996,
+      "problema": "Troca de Óleo",
+      "custo": 200000,
+      "id": "n9wPNwZ"
+    },
+    {
+      "nome": "Ford Aerostar Mini-Van 3.8",
+      "modelo": "1.0",
+      "ano": 1993,
+      "problema": "Freio",
+      "custo": 100000,
+      "id": "MAhtPv3"
     }
   ]
 }

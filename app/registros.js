@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, FlatList, ScrollView, StyleSheet,
-  TouchableOpacity, Dimensions, Platform, ActivityIndicator,
+  TouchableOpacity, Platform, ActivityIndicator, useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,8 +24,6 @@ const API_URL = Platform.select({
   web: 'http://localhost:3000',
 });
 
-const screenWidth = Dimensions.get('window').width;
-
 const chartConfig = {
   backgroundColor: '#001A38',
   backgroundGradientFrom: '#001A38',
@@ -38,6 +37,8 @@ const chartConfig = {
 
 export default function Registros() {
   const router = useRouter();
+  const { width: screenWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [cars, setCars] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -147,7 +148,7 @@ export default function Registros() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }} showsVerticalScrollIndicator={false}>
 
       {/* Banner offline */}
       {!isOnline && (

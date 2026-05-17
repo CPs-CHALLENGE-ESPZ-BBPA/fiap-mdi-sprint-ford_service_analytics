@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 28, right: 16,
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
-    maxWidth: 290, elevation: 12,
+    maxWidth: '85%', elevation: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35, shadowRadius: 8,
   },

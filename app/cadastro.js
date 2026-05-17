@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Network from 'expo-network';
 import * as Notifications from 'expo-notifications';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const notify = async (title, body) => {
   if (Platform.OS === 'web') return;
@@ -35,6 +36,7 @@ const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warnin
 
 export default function Cadastro() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [values, setValues] = useState({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
   const [focused, setFocused] = useState(null);
   const [errors, setErrors] = useState({});
@@ -333,7 +335,7 @@ export default function Cadastro() {
         onRequestClose={() => setModal(prev => ({ ...prev, visible: false }))}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20) }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{modal.title}</Text>
               <TouchableOpacity onPress={() => { setSearchQuery(''); setModal(prev => ({ ...prev, visible: false })); }}>
@@ -501,7 +503,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 12,
-    maxWidth: 290,
+    maxWidth: '85%',
     elevation: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },

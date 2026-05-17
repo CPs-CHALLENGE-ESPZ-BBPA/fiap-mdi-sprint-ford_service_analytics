@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const USUARIOS_KEY = '@usuarios';
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
@@ -20,6 +21,7 @@ const notify = async (title, body) => {
 
 export default function Login() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [focusedField, setFocusedField] = useState(null);
@@ -96,7 +98,7 @@ export default function Login() {
       style={styles.keyboardView}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
 
         {/* Logo + título */}
         <View style={styles.header}>
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1, backgroundColor: '#001E3C' },
   container: {
     flexGrow: 1, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#001E3C', padding: 24,
+    backgroundColor: '#001E3C', paddingHorizontal: 24,
   },
   header: { alignItems: 'center', marginBottom: 36 },
   logo: { width: 130, height: 65, resizeMode: 'contain', marginBottom: 18 },
@@ -234,7 +236,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 28, right: 16,
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
-    maxWidth: 290, elevation: 12,
+    maxWidth: '85%', elevation: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35, shadowRadius: 8,
   },
