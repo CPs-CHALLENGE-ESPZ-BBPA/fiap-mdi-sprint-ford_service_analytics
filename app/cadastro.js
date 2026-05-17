@@ -237,7 +237,7 @@ export default function Cadastro() {
         showToast(safeError('save'), 'error');
       }
     } catch {
-      showToast('Sem resposta do servidor. Verifique se a API está rodando.', 'error');
+      showToast(safeError('network'), 'error');
     }
   };
 

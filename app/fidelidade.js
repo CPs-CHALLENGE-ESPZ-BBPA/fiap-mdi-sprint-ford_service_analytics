@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { sanitizeText } from './utils/security';
 
 const KEY = '@agendamentos';
 const FATOR_MERCADO = 0.93; // oficinas independentes ~7% mais baratas em média (peças originais vs. paralelas)
@@ -126,9 +127,9 @@ export default function Fidelidade() {
     setSaving(true);
     const ag = {
       id: String(Date.now()),
-      cliente: cliente.trim(),
-      veiculo: veiculo.trim(),
-      servico: servico.trim(),
+      cliente: sanitizeText(cliente.trim()),
+      veiculo: sanitizeText(veiculo.trim()),
+      servico: sanitizeText(servico.trim()),
       custoFord: custoNum,
       data,
       visitas: parseInt(visitas, 10) || 0,
@@ -365,11 +366,11 @@ export default function Fidelidade() {
 
                 {/* Campos do formulário */}
                 {[
-                  { label: 'CLIENTE',             value: cliente,  setter: setCliente,  placeholder: 'ex: João Silva',         keyboard: 'default',     cap: 'words' },
-                  { label: 'VEÍCULO',              value: veiculo,  setter: setVeiculo,  placeholder: 'ex: Ford Ka 2018',       keyboard: 'default',     cap: 'words' },
-                  { label: 'PRÓXIMO SERVIÇO',      value: servico,  setter: setServico,  placeholder: 'ex: Troca de óleo',      keyboard: 'default',     cap: 'sentences' },
-                  { label: 'CUSTO ESTIMADO (R$)',  value: custo,    setter: setCusto,    placeholder: 'ex: 350',                keyboard: 'decimal-pad', cap: 'none' },
-                ].map(({ label, value, setter, placeholder, keyboard, cap }) => (
+                  { label: 'CLIENTE',             value: cliente,  setter: setCliente,  placeholder: 'ex: João Silva',         keyboard: 'default',     cap: 'words',     max: 60  },
+                  { label: 'VEÍCULO',              value: veiculo,  setter: setVeiculo,  placeholder: 'ex: Ford Ka 2018',       keyboard: 'default',     cap: 'words',     max: 60  },
+                  { label: 'PRÓXIMO SERVIÇO',      value: servico,  setter: setServico,  placeholder: 'ex: Troca de óleo',      keyboard: 'default',     cap: 'sentences', max: 100 },
+                  { label: 'CUSTO ESTIMADO (R$)',  value: custo,    setter: setCusto,    placeholder: 'ex: 350',                keyboard: 'decimal-pad', cap: 'none',      max: 10  },
+                ].map(({ label, value, setter, placeholder, keyboard, cap, max }) => (
                   <View key={label} style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>{label}</Text>
                     <TextInput
@@ -380,6 +381,7 @@ export default function Fidelidade() {
                       placeholderTextColor="#2A4A6A"
                       keyboardType={keyboard}
                       autoCapitalize={cap}
+                      maxLength={max}
                     />
                   </View>
                 ))}

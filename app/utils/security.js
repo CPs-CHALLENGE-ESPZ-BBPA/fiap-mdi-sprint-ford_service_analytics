@@ -1,10 +1,13 @@
-// Strips HTML tags and injection patterns from user input (XSS/command injection prevention)
+// Strips HTML tags, injection patterns and SQL meta-characters from user input
 export const sanitizeText = (input) => {
   if (typeof input !== 'string') return '';
   return input
-    .replace(/<[^>]*>/g, '')
-    .replace(/javascript\s*:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
+    .replace(/<[^>]*>/g, '')       // XSS: strip HTML tags
+    .replace(/javascript\s*:/gi, '') // XSS: strip javascript: protocol
+    .replace(/on\w+\s*=/gi, '')    // XSS: strip event handlers
+    .replace(/;/g, '')             // SQL: statement separator
+    .replace(/--/g, '')            // SQL: line comment
+    .replace(/\/\*/g, '')          // SQL: block comment start
     .trim();
 };
 
