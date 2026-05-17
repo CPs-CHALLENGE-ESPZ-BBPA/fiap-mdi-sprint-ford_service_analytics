@@ -59,9 +59,6 @@ npm run web      # Navegador
 
 ## d) Demonstração Visual
 
-> ⚠️ **Adicione os prints e o GIF/vídeo antes da entrega.**  
-> README sem demonstração visual = **-50% automático** na nota de Documentação.
-
 ### Telas
 
 | # | Arquivo | Tela |
@@ -69,7 +66,7 @@ npm run web      # Navegador
 | 1 | <img width="499" height="829" alt="image" src="https://github.com/user-attachments/assets/3ab8f0d1-cb74-4c09-9f06-5368a60e6a43" /> | Login |
 | 2 | <img width="501" height="831" alt="image" src="https://github.com/user-attachments/assets/c0ab6054-b396-4988-a0ef-ce57a5f3ca67" /> | Criar conta |
 | 3 | <img width="501" height="829" alt="image" src="https://github.com/user-attachments/assets/045ac55c-05e3-48f4-867e-4fd628772075" /> | Modal de seleção FIPE |
-| 4 | <img width="500" height="831" alt="image" src="https://github.com/user-attachments/assets/758d80a5-e1d6-45fc-bccf-cd9694dad4c8" /> | Formulário de cadastro |
+| 4 | <img width="438" height="826" alt="image" src="https://github.com/user-attachments/assets/d21b4a48-0328-450e-b9a8-f69d717b6c5e" /> | Formulário de cadastro |
 | 5 | <img width="504" height="183" alt="image" src="https://github.com/user-attachments/assets/1623c753-a34d-4626-acc6-9bc1d369f6fa" /> | Dashboard — KPIs |
 | 6 | <img width="492" height="467" alt="image" src="https://github.com/user-attachments/assets/8f485084-7ec9-4615-a243-99b36f0ea882" /> | Dashboard — detalhes |
 | 7 | <img width="501" height="828" alt="image" src="https://github.com/user-attachments/assets/540e66c5-d409-4996-a512-db924dd4c28a" /> | Dashboard — tabela |
