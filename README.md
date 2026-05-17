@@ -78,7 +78,7 @@ npm run web      # Navegador
 
 ### Fluxo Principal
 
-> Adicione aqui um GIF ou vídeo do fluxo: Login → Cadastro (FIPE) → Dashboard → Fidelidade → Agendamento
+> Vídeo do fluxo: Login → Cadastro (FIPE) → Dashboard → Fidelidade → Agendamento
 
 ```
 https://github.com/user-attachments/assets/eac601bf-54c7-4925-b661-c584677882b2
