@@ -6,11 +6,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sanitizeText, validateEmail } from './utils/security';
 
 const USUARIOS_KEY = '@usuarios';
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
-
-const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export default function NovaConta() {
   const router = useRouter();
@@ -51,7 +50,7 @@ export default function NovaConta() {
       setErrors({ nome: true });
       return;
     }
-    if (!email.trim() || !validarEmail(email.trim())) {
+    if (!email.trim() || !validateEmail(email.trim())) {
       showToast('Informe um e-mail válido', 'error');
       setErrors({ email: true });
       return;
@@ -81,7 +80,7 @@ export default function NovaConta() {
       }
 
       const novoUsuario = {
-        nome: nome.trim(),
+        nome: sanitizeText(nome.trim()),
         email: emailNorm,
         senha,
         criadoEm: Date.now(),

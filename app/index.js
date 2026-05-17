@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { sanitizeText } from './utils/security';
 
 const USUARIOS_KEY = '@usuarios';
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
@@ -58,8 +59,10 @@ export default function Login() {
       return;
     }
 
+    const emailSanitized = sanitizeText(email.trim()).toLowerCase();
+
     // Credencial de demo
-    if (email.trim() === 'a' && senha === 'a') {
+    if (emailSanitized === 'a' && senha === 'a') {
       try {
         await AsyncStorage.setItem('userSession', JSON.stringify({ email: 'a', nome: 'Admin', loggedAt: Date.now() }));
       } catch (_) {}
@@ -73,7 +76,7 @@ export default function Login() {
       const raw = await AsyncStorage.getItem(USUARIOS_KEY);
       const usuarios = raw ? JSON.parse(raw) : [];
       const usuario = usuarios.find(
-        u => u.email === email.trim().toLowerCase() && u.senha === senha
+        u => u.email === emailSanitized && u.senha === senha
       );
 
       if (usuario) {
@@ -123,6 +126,7 @@ export default function Login() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                maxLength={80}
                 onFocus={() => setFocusedField('email')}
                 onBlur={() => setFocusedField(null)}
               />
@@ -140,6 +144,7 @@ export default function Login() {
                 secureTextEntry={!showSenha}
                 value={senha}
                 onChangeText={setSenha}
+                maxLength={50}
                 onFocus={() => setFocusedField('senha')}
                 onBlur={() => setFocusedField(null)}
               />

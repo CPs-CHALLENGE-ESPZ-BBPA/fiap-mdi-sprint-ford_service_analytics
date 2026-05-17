@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import * as Network from 'expo-network';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { sanitizeText, sanitizeApiParam, safeError } from './utils/security';
 
 const notify = async (title, body) => {
   if (Platform.OS === 'web') return;
@@ -121,7 +122,8 @@ export default function Cadastro() {
 
       setLoadingFipe(true);
       try {
-        const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos/${item.codigo}/anos`);
+        const codigoSafe = sanitizeApiParam(String(item.codigo));
+        const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos/${codigoSafe}/anos`);
         const data = await res.json();
         setAnos(data || []);
       } catch (_) {
@@ -144,7 +146,9 @@ export default function Cadastro() {
     setFipePrice('');
     setLoadingPrice(true);
     try {
-      const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos/${selectedModelo.codigo}/anos/${selectedAno.codigo}`);
+      const modeloCode = sanitizeApiParam(String(selectedModelo.codigo));
+      const anoCode = sanitizeApiParam(String(selectedAno.codigo));
+      const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos/${modeloCode}/anos/${anoCode}`);
       const data = await res.json();
       const valorStr = data.Valor || '';
       const numero = parseFipeValue(valorStr);
@@ -213,10 +217,10 @@ export default function Cadastro() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nome: values.carro.trim(),
-          modelo: values.modelo.trim(),
+          nome: sanitizeText(values.carro.trim()),
+          modelo: sanitizeText(values.modelo.trim()),
           ano: anoNum,
-          problema: values.problema.trim(),
+          problema: sanitizeText(values.problema.trim()),
           custo: custoNum,
         }),
       });
@@ -230,7 +234,7 @@ export default function Cadastro() {
         setAnos([]);
         setFipePrice('');
       } else {
-        showToast(`Erro ${response.status} — não foi possível salvar o registro.`, 'error');
+        showToast(safeError('save'), 'error');
       }
     } catch {
       showToast('Sem resposta do servidor. Verifique se a API está rodando.', 'error');
@@ -459,6 +463,7 @@ export default function Cadastro() {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoCorrect={false}
+                maxLength={60}
               />
               {searchQuery.length > 0 && (
                 <TouchableOpacity onPress={() => setSearchQuery('')}>
