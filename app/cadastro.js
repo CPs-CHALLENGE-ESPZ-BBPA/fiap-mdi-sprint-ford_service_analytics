@@ -27,10 +27,14 @@ const FIPE_BASE = 'https://parallelum.com.br/fipe/api/v1';
 const FORD_ID = '22';
 
 const TEXT_FIELDS = [
-  { key: 'modelo',   label: 'MODELO / VERSÃO',  placeholder: 'ex: SE 1.0',        icon: 'build-outline',   keyboard: 'default',     max: 50  },
-  { key: 'problema', label: 'PROBLEMA',          placeholder: 'ex: Troca de óleo', icon: 'warning-outline', keyboard: 'default',     max: 100 },
-  { key: 'custo',    label: 'CUSTO DO VEÍCULO (R$)',         placeholder: 'ex: 350000',        icon: 'cash-outline',    keyboard: 'decimal-pad', max: 10  },
+  { key: 'modelo',   label: 'MODELO / VERSÃO',  placeholder: 'ex: SE 1.0',        icon: 'build-outline',   keyboard: 'default', max: 50  },
+  { key: 'problema', label: 'PROBLEMA',          placeholder: 'ex: Troca de óleo', icon: 'warning-outline', keyboard: 'default', max: 100 },
 ];
+
+const parseFipeValue = (str) => {
+  const cleaned = (str || '').replace(/R\$\s?/, '').replace(/\./g, '').replace(',', '.');
+  return parseFloat(cleaned);
+};
 
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
 
@@ -45,8 +49,11 @@ export default function Cadastro() {
   const [anos, setAnos] = useState([]);
   const [loadingFipe, setLoadingFipe] = useState(false);
   const [selectedModelo, setSelectedModelo] = useState(null);
+  const [selectedAno, setSelectedAno] = useState(null);
   const [modal, setModal] = useState({ visible: false, items: [], target: null, title: '' });
   const [searchQuery, setSearchQuery] = useState('');
+  const [fipePrice, setFipePrice] = useState('');
+  const [loadingPrice, setLoadingPrice] = useState(false);
 
   // Toast
   const [toast, setToast] = useState({ message: '', type: 'success' });
@@ -103,8 +110,11 @@ export default function Cadastro() {
   const handleModalSelect = async (item) => {
     if (modal.target === 'modelo') {
       setSelectedModelo(item);
+      setSelectedAno(null);
       setValue('carro', `Ford ${item.nome}`);
       setValue('ano', '');
+      setValue('custo', '');
+      setFipePrice('');
       setAnos([]);
       setSearchQuery('');
       setModal(prev => ({ ...prev, visible: false }));
@@ -119,10 +129,33 @@ export default function Cadastro() {
       }
       setLoadingFipe(false);
     } else {
+      setSelectedAno(item);
       setValue('ano', item.codigo.split('-')[0]);
+      setValue('custo', '');
+      setFipePrice('');
       setSearchQuery('');
       setModal(prev => ({ ...prev, visible: false }));
     }
+  };
+
+  const buscarPrecoFipe = async () => {
+    if (!selectedModelo || !selectedAno) return;
+    setValue('custo', '');
+    setFipePrice('');
+    setLoadingPrice(true);
+    try {
+      const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos/${selectedModelo.codigo}/anos/${selectedAno.codigo}`);
+      const data = await res.json();
+      const valorStr = data.Valor || '';
+      const numero = parseFipeValue(valorStr);
+      setFipePrice(valorStr);
+      if (!isNaN(numero) && numero > 0) {
+        setValue('custo', String(Math.round(numero)));
+      }
+    } catch (_) {
+      showToast('Não foi possível carregar o preço FIPE. Insira manualmente.', 'warning');
+    }
+    setLoadingPrice(false);
   };
 
   const validate = () => {
@@ -193,7 +226,9 @@ export default function Cadastro() {
         showToast(`${values.carro.trim()} cadastrado com sucesso!`, 'success');
         setValues({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
         setSelectedModelo(null);
+        setSelectedAno(null);
         setAnos([]);
+        setFipePrice('');
       } else {
         showToast(`Erro ${response.status} — não foi possível salvar o registro.`, 'error');
       }
@@ -256,7 +291,7 @@ export default function Cadastro() {
           </View>
 
           {/* Seletor de Ano */}
-          <View style={[styles.inputGroup, { marginBottom: 0 }]}>
+          <View style={[styles.inputGroup, { marginBottom: values.carro && values.ano ? 14 : 0 }]}>
             <View style={styles.labelRow}>
               <Ionicons name="calendar-outline" size={13} color={errors.ano ? '#E05A5A' : '#4A9FE0'} />
               <Text style={[styles.label, errors.ano && styles.labelError]}>ANO</Text>
@@ -284,6 +319,28 @@ export default function Cadastro() {
                 : <Ionicons name="chevron-down-outline" size={16} color={selectedModelo ? '#4A9FE0' : '#2A4A6A'} />}
             </TouchableOpacity>
           </View>
+
+          {/* Botão buscar preço FIPE — só aparece quando ambos os campos estão preenchidos */}
+          {values.carro && values.ano ? (
+            <TouchableOpacity
+              style={[styles.fipeBtn, loadingPrice && styles.botaoDisabled]}
+              onPress={buscarPrecoFipe}
+              disabled={loadingPrice}
+              activeOpacity={0.8}
+            >
+              {loadingPrice ? (
+                <>
+                  <ActivityIndicator size="small" color="#4A9FE0" />
+                  <Text style={styles.fipeBtnText}>Consultando FIPE...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="pricetag-outline" size={14} color="#4A9FE0" />
+                  <Text style={styles.fipeBtnText}>Buscar Preço Tabela FIPE</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {/* Card campos de texto */}
@@ -311,10 +368,60 @@ export default function Cadastro() {
               />
             </View>
           ))}
+
+          {/* Custo — pré-preenchido via FIPE */}
+          <View style={[styles.inputGroup, { marginBottom: 0 }]}>
+            <View style={styles.labelRow}>
+              <Ionicons name="cash-outline" size={13} color={errors.custo ? '#E05A5A' : '#4A9FE0'} />
+              <Text style={[styles.label, errors.custo && styles.labelError]}>VALOR TABELA FIPE (R$)</Text>
+              {fipePrice ? (
+                <View style={styles.fipeMiniTag}>
+                  <Ionicons name="checkmark-circle-outline" size={10} color="#4AE07A" />
+                  <Text style={styles.fipeMiniTagText}>FIPE</Text>
+                </View>
+              ) : null}
+            </View>
+            <TextInput
+              style={[
+                styles.input,
+                focused === 'custo' && styles.inputFocused,
+                errors.custo && styles.inputError,
+                loadingPrice && styles.inputDisabled,
+              ]}
+              placeholder={loadingPrice ? 'Consultando tabela FIPE...' : 'ex: 45000'}
+              placeholderTextColor="#2A4A6A"
+              keyboardType="decimal-pad"
+              value={values.custo}
+              onChangeText={val => { setValue('custo', val); setFipePrice(''); }}
+              maxLength={10}
+              onFocus={() => setFocused('custo')}
+              onBlur={() => setFocused(null)}
+              editable={!loadingPrice}
+            />
+            {loadingPrice && (
+              <View style={styles.fipePriceRow}>
+                <ActivityIndicator size="small" color="#4A9FE0" />
+                <Text style={styles.fipePriceText}>Consultando tabela FIPE...</Text>
+              </View>
+            )}
+            {!!fipePrice && !loadingPrice && (
+              <View style={styles.fipePriceRow}>
+                <Ionicons name="pricetag-outline" size={13} color="#4AE07A" />
+                <Text style={styles.fipePriceText}>
+                  Tabela FIPE: <Text style={styles.fipePriceHighlight}>{fipePrice}</Text> — edite se necessário
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* Botão primário */}
-        <TouchableOpacity style={styles.botaoPrimario} onPress={handleSubmit} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={[styles.botaoPrimario, (loadingFipe || loadingPrice) && styles.botaoDisabled]}
+          onPress={handleSubmit}
+          activeOpacity={0.85}
+          disabled={loadingFipe || loadingPrice}
+        >
           <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
           <Text style={styles.textoBotao}>Cadastrar Veículo</Text>
         </TouchableOpacity>
@@ -441,6 +548,25 @@ const styles = StyleSheet.create({
   },
   inputFocused: { borderColor: '#4A9FE0' },
   inputError: { borderColor: '#E05A5A' },
+  inputDisabled: { opacity: 0.5 },
+
+  fipeBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 7, backgroundColor: '#001A38', borderRadius: 10,
+    paddingVertical: 12, borderWidth: 1, borderColor: '#1A4A7A',
+  },
+  fipeBtnText: { color: '#4A9FE0', fontSize: 13, fontWeight: '600' },
+
+  fipeMiniTag: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    backgroundColor: '#002A14', borderRadius: 6,
+    paddingHorizontal: 6, paddingVertical: 2,
+    borderWidth: 1, borderColor: '#1A5A2A', marginLeft: 6,
+  },
+  fipeMiniTagText: { color: '#4AE07A', fontSize: 9, fontWeight: '700', letterSpacing: 0.8 },
+  fipePriceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  fipePriceText: { color: '#8FBAD8', fontSize: 12, flex: 1 },
+  fipePriceHighlight: { color: '#4AE07A', fontWeight: 'bold' },
 
   selectorBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -460,6 +586,7 @@ const styles = StyleSheet.create({
     shadowColor: '#0061A8', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.45, shadowRadius: 8,
   },
+  botaoDisabled: { opacity: 0.5 },
   botaoSecundario: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 14, borderRadius: 12, borderWidth: 1.5, borderColor: '#1A4A7A', gap: 8,

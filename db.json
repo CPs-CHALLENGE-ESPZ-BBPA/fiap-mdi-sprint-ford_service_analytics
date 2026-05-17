@@ -111,6 +111,14 @@
       "problema": "Freio",
       "custo": 100000,
       "id": "MAhtPv3"
+    },
+    {
+      "nome": "Ford Ka 1.0 8V/1.0 8V ST Flex 3p",
+      "modelo": "2.0",
+      "ano": 2013,
+      "problema": "Freio",
+      "custo": 500000,
+      "id": "WRnXmSa"
     }
   ]
 }
