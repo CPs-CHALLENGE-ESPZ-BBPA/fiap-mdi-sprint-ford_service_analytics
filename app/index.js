@@ -8,7 +8,12 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sanitizeText } from './utils/security';
+import { sanitizeText, anonymizeEmail } from './utils/security';
+import { saveSession, loadSession } from './utils/auth';
+import { assignRole } from './utils/rbac';
+import { hashPassword, decryptData, encryptData } from './utils/crypto';
+import { logger } from './utils/logger';
+import { checkLockout, recordFailure, clearFailures } from './utils/bruteForce';
 
 const USUARIOS_KEY = '@usuarios';
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
@@ -45,10 +50,8 @@ export default function Login() {
 
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const session = await AsyncStorage.getItem('userSession');
-        if (session) router.replace('/cadastro');
-      } catch (_) {}
+      const session = await loadSession();
+      if (session) router.replace('/menu');
     };
     checkSession();
   }, []);
@@ -63,30 +66,62 @@ export default function Login() {
 
     // Credencial de demo
     if (emailSanitized === 'a' && senha === 'a') {
-      try {
-        await AsyncStorage.setItem('userSession', JSON.stringify({ email: 'a', nome: 'Admin', loggedAt: Date.now() }));
-      } catch (_) {}
+      await saveSession('a', 'Admin', 'admin');
       await notify('Login realizado!', 'Bem-vindo ao Ford Service Analytics.');
-      router.replace('/cadastro');
+      router.replace('/menu');
+      return;
+    }
+
+    // Verificar bloqueio por tentativas repetidas
+    const lockoutMins = await checkLockout(emailSanitized);
+    if (lockoutMins > 0) {
+      logger.warn('LOGIN_BLOCKED', { email: emailSanitized, lockoutMins });
+      showToast(`Conta bloqueada. Tente novamente em ${lockoutMins} min.`, 'error');
       return;
     }
 
     // Verificar usuários cadastrados
     try {
       const raw = await AsyncStorage.getItem(USUARIOS_KEY);
-      const usuarios = raw ? JSON.parse(raw) : [];
-      const usuario = usuarios.find(
-        u => u.email === emailSanitized && u.senha === senha
+      let usuarios = [];
+      if (raw) {
+        try { usuarios = JSON.parse(decryptData(raw)); }
+        catch { try { usuarios = JSON.parse(raw); } catch { usuarios = []; } }
+      }
+
+      const senhaHash = hashPassword(senha, emailSanitized);
+      const usuario = usuarios.find(u =>
+        u.email === emailSanitized &&
+        (u.senhaHash ? u.senhaHash === senhaHash : u.senha === senha)
       );
 
       if (usuario) {
-        await AsyncStorage.setItem('userSession', JSON.stringify({ email: usuario.email, nome: usuario.nome, loggedAt: Date.now() }));
+        await clearFailures(emailSanitized);
+        logger.audit('LOGIN_SUCCESS', { email: emailSanitized, role: usuario.role });
+        // Migrate plaintext password to hash on first login after update
+        if (usuario.senha && !usuario.senhaHash) {
+          const migrated = usuarios.map(u =>
+            u.email === emailSanitized
+              ? { ...u, senhaHash: hashPassword(u.senha, u.email), senha: undefined }
+              : u
+          );
+          await AsyncStorage.setItem(USUARIOS_KEY, encryptData(JSON.stringify(migrated)));
+        }
+        await saveSession(usuario.email, usuario.nome, usuario.role || assignRole(usuario.email));
         await notify('Login realizado!', `Bem-vindo(a), ${usuario.nome.split(' ')[0]}!`);
-        router.replace('/cadastro');
+        router.replace('/menu');
       } else {
-        showToast('E-mail ou senha inválidos', 'error');
+        const triggered = await recordFailure(emailSanitized);
+        if (triggered) {
+          logger.warn('BRUTE_FORCE_DETECTED', { email: emailSanitized });
+          showToast('Muitas tentativas. Conta bloqueada por 15 min.', 'error');
+        } else {
+          logger.warn('LOGIN_FAILURE', { email: emailSanitized });
+          showToast('E-mail ou senha inválidos', 'error');
+        }
       }
     } catch (_) {
+      logger.error('LOGIN_ERROR', { email: emailSanitized });
       showToast('Erro ao verificar credenciais. Tente novamente.', 'error');
     }
   };
@@ -167,7 +202,7 @@ export default function Login() {
           <Ionicons name="arrow-forward-outline" size={14} color="#4A9FE0" style={{ marginLeft: 2 }} />
         </TouchableOpacity>
 
-        <Text style={styles.footer}>Ford Motor Company © 2025</Text>
+        <Text style={styles.footer}>Ford Motor Company © 2026</Text>
       </ScrollView>
 
       {/* Toast */}

@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sanitizeText, validateEmail } from './utils/security';
+import { hashPassword, encryptData, decryptData } from './utils/crypto';
+import { logger } from './utils/logger';
 
 const USUARIOS_KEY = '@usuarios';
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
@@ -22,6 +24,9 @@ export default function NovaConta() {
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tipoConta, setTipoConta] = useState('user');
+  const [codigoAdmin, setCodigoAdmin] = useState('');
+  const [showCodigoAdmin, setShowCodigoAdmin] = useState(false);
 
   const [toast, setToast] = useState({ message: '', type: 'success' });
   const toastAnim = useRef(new Animated.Value(0)).current;
@@ -65,11 +70,20 @@ export default function NovaConta() {
       setErrors({ confirmar: true });
       return;
     }
+    if (tipoConta === 'admin' && codigoAdmin.trim().toLowerCase() !== 'admin') {
+      showToast('Código de administrador inválido', 'error');
+      setErrors({ codigoAdmin: true });
+      return;
+    }
 
     setLoading(true);
     try {
       const raw = await AsyncStorage.getItem(USUARIOS_KEY);
-      const usuarios = raw ? JSON.parse(raw) : [];
+      let usuarios = [];
+      if (raw) {
+        try { usuarios = JSON.parse(decryptData(raw)); }
+        catch { try { usuarios = JSON.parse(raw); } catch { usuarios = []; } }
+      }
 
       const emailNorm = email.trim().toLowerCase();
       if (usuarios.find(u => u.email === emailNorm)) {
@@ -80,13 +94,15 @@ export default function NovaConta() {
       }
 
       const novoUsuario = {
-        nome: sanitizeText(nome.trim()),
-        email: emailNorm,
-        senha,
+        nome:     sanitizeText(nome.trim()),
+        email:    emailNorm,
+        senhaHash: hashPassword(senha, emailNorm),
+        role:     tipoConta,
         criadoEm: Date.now(),
       };
 
-      await AsyncStorage.setItem(USUARIOS_KEY, JSON.stringify([...usuarios, novoUsuario]));
+      await AsyncStorage.setItem(USUARIOS_KEY, encryptData(JSON.stringify([...usuarios, novoUsuario])));
+      logger.audit('ACCOUNT_CREATED', { email: emailNorm, role: tipoConta });
       showToast(`Conta criada! Bem-vindo(a), ${nome.trim().split(' ')[0]}.`, 'success');
       setTimeout(() => router.back(), 2000);
     } catch (_) {
@@ -187,7 +203,7 @@ export default function NovaConta() {
           </View>
 
           {/* Confirmar Senha */}
-          <View style={[styles.inputGroup, { marginBottom: 0 }]}>
+          <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Ionicons name="lock-closed-outline" size={13} color={errors.confirmar ? '#E05A5A' : '#4A9FE0'} />
               <Text style={[styles.label, errors.confirmar && styles.labelError]}>CONFIRMAR SENHA</Text>
@@ -209,6 +225,60 @@ export default function NovaConta() {
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Tipo de Conta */}
+          <View style={[styles.inputGroup, { marginBottom: tipoConta === 'admin' ? 14 : 0 }]}>
+            <View style={styles.labelRow}>
+              <Ionicons name="shield-outline" size={13} color="#4A9FE0" />
+              <Text style={styles.label}>TIPO DE CONTA</Text>
+            </View>
+            <View style={styles.tipoContaRow}>
+              <TouchableOpacity
+                style={[styles.tipoBtn, tipoConta === 'user' && styles.tipoBtnAtivoUser]}
+                onPress={() => { setTipoConta('user'); setCodigoAdmin(''); clearError('codigoAdmin'); }}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="person-outline" size={16} color={tipoConta === 'user' ? '#FFFFFF' : '#8FBAD8'} />
+                <Text style={[styles.tipoBtnText, tipoConta === 'user' && styles.tipoBtnTextAtivo]}>Usuário</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tipoBtn, tipoConta === 'admin' && styles.tipoBtnAtivoAdmin]}
+                onPress={() => { setTipoConta('admin'); clearError('codigoAdmin'); }}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="shield-checkmark-outline" size={16} color={tipoConta === 'admin' ? '#FFFFFF' : '#8FBAD8'} />
+                <Text style={[styles.tipoBtnText, tipoConta === 'admin' && styles.tipoBtnTextAtivo]}>Admin</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Código de Admin — aparece apenas quando admin está selecionado */}
+          {tipoConta === 'admin' && (
+            <View style={[styles.inputGroup, { marginBottom: 0 }]}>
+              <View style={styles.labelRow}>
+                <Ionicons name="key-outline" size={13} color={errors.codigoAdmin ? '#E05A5A' : '#E0A85A'} />
+                <Text style={[styles.label, { color: errors.codigoAdmin ? '#E05A5A' : '#E0A85A' }]}>
+                  CÓDIGO DE ADMINISTRADOR
+                </Text>
+              </View>
+              <View style={[fieldStyle('codigoAdmin', true), errors.codigoAdmin && styles.inputWrapperError]}>
+                <TextInput
+                  style={styles.inputInner}
+                  placeholder="Digite o código de acesso"
+                  placeholderTextColor="#2A4A6A"
+                  value={codigoAdmin}
+                  onChangeText={v => { setCodigoAdmin(v); clearError('codigoAdmin'); }}
+                  secureTextEntry={!showCodigoAdmin}
+                  maxLength={20}
+                  onFocus={() => setFocused('codigoAdmin')}
+                  onBlur={() => setFocused(null)}
+                />
+                <TouchableOpacity onPress={() => setShowCodigoAdmin(p => !p)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Ionicons name={showCodigoAdmin ? 'eye-off-outline' : 'eye-outline'} size={18} color="#E0A85A" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
         </View>
 
@@ -291,6 +361,17 @@ const styles = StyleSheet.create({
   inputWrapperFocused: { borderColor: '#4A9FE0' },
   inputWrapperError: { borderColor: '#E05A5A' },
   inputInner: { flex: 1, color: '#FFFFFF', fontSize: 15 },
+
+  tipoContaRow:      { flexDirection: 'row', gap: 10 },
+  tipoBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, paddingVertical: 12, borderRadius: 10,
+    backgroundColor: '#001A38', borderWidth: 1, borderColor: '#1A4A7A',
+  },
+  tipoBtnAtivoUser:  { backgroundColor: '#0061A8', borderColor: '#4A9FE0' },
+  tipoBtnAtivoAdmin: { backgroundColor: '#5A3A00', borderColor: '#E0A85A' },
+  tipoBtnText:       { color: '#8FBAD8', fontSize: 14, fontWeight: '600' },
+  tipoBtnTextAtivo:  { color: '#FFFFFF' },
 
   botaoPrimario: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',

@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { View, Platform } from "react-native";
 import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
+import { runRetentionPolicy } from "./utils/retention";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,6 +16,7 @@ Notifications.setNotificationHandler({
 export default function Layout() {
   useEffect(() => {
     const setup = async () => {
+      await runRetentionPolicy();
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("default", {
           name: "Ford Service Analytics",
@@ -43,10 +45,11 @@ export default function Layout() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="nova-conta" options={{ title: "Criar Conta" }} />
         <Stack.Screen name="about" options={{ title: "Sobre" }} />
         <Stack.Screen name="cadastro" options={{ title: "Cadastrar Veículo" }} />
-        <Stack.Screen name="registros" options={{ title: "Dashboard" }} />
+<Stack.Screen name="registros" options={{ title: "Dashboard" }} />
         <Stack.Screen name="fidelidade" options={{ title: "Programa de Fidelidade" }} />
       </Stack>
     </View>
