@@ -130,6 +130,7 @@ export default function Registros() {
 
   // ── Render ──────────────────────────────────────────────────────────────
   const COLUMNS = [
+    { key: 'placa',    header: 'Placa',    width: 90  },
     { key: 'nome',     header: 'Nome',     width: 140 },
     { key: 'modelo',   header: 'Modelo',   width: 100 },
     { key: 'ano',      header: 'Ano',      width: 65  },

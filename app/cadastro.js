@@ -41,13 +41,18 @@ const parseFipeValue = (str) => {
   return parseFloat(cleaned);
 };
 
+const formatPlaca = (raw) => {
+  const clean = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 7);
+  return clean.length > 3 ? clean.slice(0, 3) + '-' + clean.slice(3) : clean;
+};
+
 const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warning: 'alert-circle' };
 
 export default function Cadastro() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [role, setRole] = useState(null);
-  const [values, setValues] = useState({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
+  const [values, setValues] = useState({ carro: '', modelo: '', ano: '', problema: '', custo: '', placa: '' });
   const [focused, setFocused] = useState(null);
   const [errors, setErrors] = useState({});
 
@@ -212,6 +217,16 @@ export default function Cadastro() {
       setErrors(prev => ({ ...prev, problema: true }));
       return false;
     }
+    if (!values.placa.trim()) {
+      showToast('Informe a placa do veículo', 'error');
+      setErrors(prev => ({ ...prev, placa: true }));
+      return false;
+    }
+    if (!/^[A-Z]{3}-([0-9]{4}|[0-9][A-Z][0-9]{2})$/.test(values.placa.trim())) {
+      showToast('Placa inválida — use ABC-1234 (antiga) ou ABC-1D23 (Mercosul)', 'error');
+      setErrors(prev => ({ ...prev, placa: true }));
+      return false;
+    }
     if (!values.custo.trim()) {
       showToast('Informe o custo do serviço', 'error');
       setErrors(prev => ({ ...prev, custo: true }));
@@ -254,6 +269,7 @@ export default function Cadastro() {
         ano:      anoNum,
         problema: sanitizeText(values.problema.trim()),
         custo:    custoNum,
+        placa:    values.placa.trim().toUpperCase(),
       };
       const { signature, timestamp } = signPayload(payload);
 
@@ -271,7 +287,7 @@ export default function Cadastro() {
         logger.audit('VEICULO_CADASTRADO', { carro: payload.nome, modelo: payload.modelo, ano: payload.ano, role });
         await notify('Veículo cadastrado! 🚗', `${values.carro.trim()} foi adicionado ao sistema.`);
         showToast(`${values.carro.trim()} cadastrado com sucesso!`, 'success');
-        setValues({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
+        setValues({ carro: '', modelo: '', ano: '', problema: '', custo: '', placa: '' });
         setSelectedModelo(null);
         setSelectedAno(null);
         setAnos([]);
@@ -398,6 +414,25 @@ export default function Cadastro() {
 
         {/* Card campos de texto */}
         <View style={styles.card}>
+          {/* Placa */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="card-outline" size={13} color={errors.placa ? '#E05A5A' : '#4A9FE0'} />
+              <Text style={[styles.label, errors.placa && styles.labelError]}>PLACA DO VEÍCULO</Text>
+            </View>
+            <TextInput
+              style={[styles.input, focused === 'placa' && styles.inputFocused, errors.placa && styles.inputError]}
+              placeholder="ex: ABC-1234 ou ABC-1D23"
+              placeholderTextColor="#2A4A6A"
+              value={values.placa}
+              onChangeText={val => { setValue('placa', formatPlaca(val)); }}
+              autoCapitalize="characters"
+              maxLength={8}
+              onFocus={() => setFocused('placa')}
+              onBlur={() => setFocused(null)}
+            />
+          </View>
+
           {TEXT_FIELDS.map(({ key, label, placeholder, icon, keyboard, max }) => (
             <View key={key} style={styles.inputGroup}>
               <View style={styles.labelRow}>

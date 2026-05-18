@@ -6,7 +6,8 @@
       "modelo": "SE",
       "ano": 2018,
       "problema": "Bateria descarregada",
-      "custo": 150000
+      "custo": 150000,
+      "placa": "KAB-2341"
     },
     {
       "id": "2",
@@ -14,7 +15,8 @@
       "modelo": "SE",
       "ano": 2019,
       "problema": "Troca de óleo",
-      "custo": 85000
+      "custo": 85000,
+      "placa": "FIA-5G72"
     },
     {
       "id": "3",
@@ -22,87 +24,8 @@
       "modelo": "Freestyle",
       "ano": 2020,
       "problema": "Freio traseiro desgastado",
-      "custo": 320000
-    },
-    {
-      "id": "4",
-      "nome": "Ford Focus",
-      "modelo": "Titanium",
-      "ano": 2021,
-      "problema": "Suspensão dianteira",
-      "custo": 850000
-    },
-    {
-      "id": "5",
-      "nome": "Ford Ranger",
-      "modelo": "XLS",
-      "ano": 2022,
-      "problema": "Troca de filtros",
-      "custo": 120000
-    },
-    {
-      "id": "6",
-      "nome": "Ford Ka",
-      "modelo": "SE",
-      "ano": 2018,
-      "problema": "Bateria descarregada",
-      "custo": 150000
-    },
-    {
-      "id": "7",
-      "nome": "Ford Fiesta",
-      "modelo": "SE",
-      "ano": 2019,
-      "problema": "Troca de óleo",
-      "custo": 95000
-    },
-    {
-      "id": "8",
-      "nome": "Ford EcoSport",
-      "modelo": "Freestyle",
-      "ano": 2020,
-      "problema": "Freio traseiro desgastado",
-      "custo": 320000
-    },
-    {
-      "id": "9",
-      "nome": "Ford Ka",
-      "modelo": "SE",
-      "ano": 2018,
-      "problema": "Bateria descarregada",
-      "custo": 150000
-    },
-    {
-      "id": "10",
-      "nome": "Ford Focus",
-      "modelo": "Titanium",
-      "ano": 2021,
-      "problema": "Suspensão dianteira",
-      "custo": 120000
-    },
-    {
-      "nome": "Ford Crown Victoria LX 4.6",
-      "modelo": "3.0",
-      "ano": 1992,
-      "problema": "Motor Fundido",
-      "custo": 200000,
-      "id": "wu7D76X"
-    },
-    {
-      "nome": "Ford Escort Hobby 1.0",
-      "modelo": "2.0",
-      "ano": 1996,
-      "problema": "Bomba de Gasolina, Troca de Óleo, Ar-Condicionado, Motor, Vela, Vidro Quebrado",
-      "custo": 300000,
-      "id": "cCW2aot"
-    },
-    {
-      "nome": "Ford Escort GLX 1.6i",
-      "modelo": "1.0",
-      "ano": 1996,
-      "problema": "Troca de Óleo",
-      "custo": 200000,
-      "id": "n9wPNwZ"
+      "custo": 320000,
+      "placa": "ODS-4H51"
     }
   ]
 }
