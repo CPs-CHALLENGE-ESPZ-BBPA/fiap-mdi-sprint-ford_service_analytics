@@ -9,7 +9,11 @@ import { useRouter } from 'expo-router';
 import * as Network from 'expo-network';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sanitizeText, sanitizeApiParam, safeError } from './utils/security';
+import { sanitizeText, sanitizeApiParam, safeError, signPayload } from './utils/security';
+import { checkRateLimit } from './utils/rateLimiter';
+import { logger } from './utils/logger';
+import { loadSession } from './utils/auth';
+import { ROLE_LABELS, ROLE_COLORS, hasPermission } from './utils/rbac';
 
 const notify = async (title, body) => {
   if (Platform.OS === 'web') return;
@@ -42,6 +46,7 @@ const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warnin
 export default function Cadastro() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [role, setRole] = useState(null);
   const [values, setValues] = useState({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
   const [focused, setFocused] = useState(null);
   const [errors, setErrors] = useState({});
@@ -80,7 +85,22 @@ export default function Cadastro() {
   };
 
   useEffect(() => {
+    loadSession().then(s => {
+      if (!s) {
+        logger.warn('ACESSO_NAO_AUTORIZADO', { route: '/cadastro' });
+        router.replace('/');
+        return;
+      }
+      setRole(s.role || 'user');
+    });
+  }, []);
+
+  useEffect(() => {
     const fetchModelos = async () => {
+      if (!checkRateLimit('fipe')) {
+        showToast('Muitas consultas à FIPE. Aguarde um momento.', 'warning');
+        return;
+      }
       setLoadingFipe(true);
       try {
         const res = await fetch(`${FIPE_BASE}/carros/marcas/${FORD_ID}/modelos`);
@@ -120,6 +140,11 @@ export default function Cadastro() {
       setSearchQuery('');
       setModal(prev => ({ ...prev, visible: false }));
 
+      if (!checkRateLimit('fipe')) {
+        showToast('Muitas consultas à FIPE. Aguarde um momento.', 'warning');
+        setLoadingFipe(false);
+        return;
+      }
       setLoadingFipe(true);
       try {
         const codigoSafe = sanitizeApiParam(String(item.codigo));
@@ -142,6 +167,10 @@ export default function Cadastro() {
 
   const buscarPrecoFipe = async () => {
     if (!selectedModelo || !selectedAno) return;
+    if (!checkRateLimit('fipe')) {
+      showToast('Muitas consultas à FIPE. Aguarde um momento.', 'warning');
+      return;
+    }
     setValue('custo', '');
     setFipePrice('');
     setLoadingPrice(true);
@@ -212,20 +241,34 @@ export default function Cadastro() {
       }
     } catch (_) {}
 
+    if (!checkRateLimit('api_write')) {
+      logger.warn('API_WRITE_RATE_LIMIT', { route: '/carros', role });
+      showToast('Muitas requisições. Aguarde um momento.', 'warning');
+      return;
+    }
+
     try {
+      const payload = {
+        nome:     sanitizeText(values.carro.trim()),
+        modelo:   sanitizeText(values.modelo.trim()),
+        ano:      anoNum,
+        problema: sanitizeText(values.problema.trim()),
+        custo:    custoNum,
+      };
+      const { signature, timestamp } = signPayload(payload);
+
       const response = await fetch(`${API_URL}/carros`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: sanitizeText(values.carro.trim()),
-          modelo: sanitizeText(values.modelo.trim()),
-          ano: anoNum,
-          problema: sanitizeText(values.problema.trim()),
-          custo: custoNum,
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Payload-Signature': signature,
+          'X-Request-Timestamp': timestamp,
+        },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
+        logger.audit('VEICULO_CADASTRADO', { carro: payload.nome, modelo: payload.modelo, ano: payload.ano, role });
         await notify('Veículo cadastrado! 🚗', `${values.carro.trim()} foi adicionado ao sistema.`);
         showToast(`${values.carro.trim()} cadastrado com sucesso!`, 'success');
         setValues({ carro: '', modelo: '', ano: '', problema: '', custo: '' });
@@ -256,10 +299,16 @@ export default function Cadastro() {
           <View style={styles.sectionIconBox}>
             <Ionicons name="car-sport-outline" size={24} color="#4A9FE0" />
           </View>
-          <View style={{ marginLeft: 14 }}>
+          <View style={{ marginLeft: 14, flex: 1 }}>
             <Text style={styles.sectionTitle}>Novo Registro</Text>
             <Text style={styles.sectionSubtitle}>Preencha os dados do veículo</Text>
           </View>
+          {role && (
+            <View style={[styles.roleBadge, { borderColor: ROLE_COLORS[role] }]}>
+              <Ionicons name="shield-checkmark-outline" size={10} color={ROLE_COLORS[role]} />
+              <Text style={[styles.roleBadgeText, { color: ROLE_COLORS[role] }]}>{ROLE_LABELS[role]}</Text>
+            </View>
+          )}
         </View>
 
         {/* Card FIPE */}
@@ -430,11 +479,18 @@ export default function Cadastro() {
           <Text style={styles.textoBotao}>Cadastrar Veículo</Text>
         </TouchableOpacity>
 
-        {/* Botão secundário */}
-        <TouchableOpacity style={styles.botaoSecundario} onPress={() => router.push('/registros')} activeOpacity={0.85}>
-          <Ionicons name="bar-chart-outline" size={20} color="#4A9FE0" />
-          <Text style={styles.textoBotaoSec}>Ver Dashboard</Text>
-        </TouchableOpacity>
+        {/* Botão secundário — restrito por papel */}
+        {hasPermission(role, 'view_dashboard') ? (
+          <TouchableOpacity style={styles.botaoSecundario} onPress={() => router.push('/registros')} activeOpacity={0.85}>
+            <Ionicons name="bar-chart-outline" size={20} color="#4A9FE0" />
+            <Text style={styles.textoBotaoSec}>Ver Dashboard</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={[styles.botaoSecundario, styles.botaoRestrito]}>
+            <Ionicons name="lock-closed-outline" size={18} color="#4A6A8A" />
+            <Text style={styles.textoBotaoRestrito}>Dashboard (restrito a Analistas)</Text>
+          </View>
+        )}
 
       </ScrollView>
 
@@ -521,6 +577,12 @@ const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: '#001E3C', padding: 20, paddingBottom: 40 },
 
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginTop: 4 },
+  roleBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    borderWidth: 1, borderRadius: 8, paddingHorizontal: 7, paddingVertical: 4,
+    backgroundColor: '#001A38',
+  },
+  roleBadgeText: { fontSize: 9, fontWeight: '700', letterSpacing: 1 },
   sectionIconBox: {
     width: 50, height: 50, borderRadius: 14, backgroundColor: '#002B5C',
     alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#1A4A7A',
@@ -598,6 +660,8 @@ const styles = StyleSheet.create({
   },
   textoBotao: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
   textoBotaoSec: { color: '#4A9FE0', fontWeight: 'bold', fontSize: 16 },
+  botaoRestrito: { opacity: 0.45 },
+  textoBotaoRestrito: { color: '#4A6A8A', fontWeight: '600', fontSize: 15 },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalContainer: {

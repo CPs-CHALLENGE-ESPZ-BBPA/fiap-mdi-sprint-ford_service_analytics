@@ -8,6 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Network from 'expo-network';
+import { loadSession, clearSession } from './utils/auth';
+import { checkRateLimit } from './utils/rateLimiter';
+import { logger } from './utils/logger';
+import { hasPermission, ROLE_LABELS, ROLE_COLORS } from './utils/rbac';
 import { BarChart } from 'react-native-chart-kit';
 import * as Notifications from 'expo-notifications';
 
@@ -42,10 +46,23 @@ export default function Registros() {
   const [cars, setCars] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
 
   useEffect(() => { fetchCars(); }, []);
+  useEffect(() => {
+    loadSession().then(s => {
+      if (!s) {
+        logger.warn('ACESSO_NAO_AUTORIZADO', { route: '/registros' });
+        router.replace('/');
+        return;
+      }
+      logger.info('DASHBOARD_ACCESS', { role: s.role });
+      setRole(s.role || 'user');
+    });
+  }, []);
 
   const fetchCars = async () => {
+    if (!checkRateLimit('api_read')) return;
     setLoading(true);
     try {
       const networkState = await Network.getNetworkStateAsync();
@@ -66,6 +83,7 @@ export default function Registros() {
       const data = await response.json();
       setCars(data);
       await AsyncStorage.setItem('carsCache', JSON.stringify(data));
+      await AsyncStorage.setItem('carsCacheTimestamp', Date.now().toString());
     } catch {
       try {
         const cached = await AsyncStorage.getItem('carsCache');
@@ -76,7 +94,7 @@ export default function Registros() {
   };
 
   const handleLogout = async () => {
-    try { await AsyncStorage.removeItem('userSession'); } catch (_) {}
+    await clearSession();
     router.replace('/');
   };
 
@@ -149,6 +167,14 @@ export default function Registros() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }} showsVerticalScrollIndicator={false}>
+
+      {/* Role badge */}
+      {role && (
+        <View style={[styles.roleBadge, { borderColor: ROLE_COLORS[role] }]}>
+          <Ionicons name="shield-checkmark-outline" size={12} color={ROLE_COLORS[role]} />
+          <Text style={[styles.roleBadgeText, { color: ROLE_COLORS[role] }]}>{ROLE_LABELS[role]}</Text>
+        </View>
+      )}
 
       {/* Banner offline */}
       {!isOnline && (
@@ -227,39 +253,52 @@ export default function Registros() {
         </View>
       )}
 
-      {/* Analytics */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Ionicons name="trophy-outline" size={17} color="#4A9FE0" />
-          <Text style={styles.cardTitle}>Análise de Registros</Text>
-        </View>
-
-        <Text style={styles.analyticSection}>Top 3 modelos com mais ocorrências</Text>
-        {top3.length > 0 ? top3.map(([nome, qtd], i) => (
-          <View key={i} style={styles.analyticRow}>
-            <View style={[
-              styles.rankBadge,
-              i === 0 && styles.rankGold,
-              i === 1 && styles.rankSilver,
-              i === 2 && styles.rankBronze,
-            ]}>
-              <Text style={styles.rankText}>{i + 1}</Text>
-            </View>
-            <Text style={styles.analyticName} numberOfLines={1}>{nome}</Text>
-            <Text style={styles.analyticQtd}>{qtd}x</Text>
+      {/* Analytics — restrito a analyst e admin */}
+      {hasPermission(role, 'view_analytics') ? (
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="trophy-outline" size={17} color="#4A9FE0" />
+            <Text style={styles.cardTitle}>Análise de Registros</Text>
           </View>
-        )) : <Text style={styles.emptyText}>Nenhum registro encontrado</Text>}
 
-        <View style={styles.divider} />
+          <Text style={styles.analyticSection}>Top 3 modelos com mais ocorrências</Text>
+          {top3.length > 0 ? top3.map(([nome, qtd], i) => (
+            <View key={i} style={styles.analyticRow}>
+              <View style={[
+                styles.rankBadge,
+                i === 0 && styles.rankGold,
+                i === 1 && styles.rankSilver,
+                i === 2 && styles.rankBronze,
+              ]}>
+                <Text style={styles.rankText}>{i + 1}</Text>
+              </View>
+              <Text style={styles.analyticName} numberOfLines={1}>{nome}</Text>
+              <Text style={styles.analyticQtd}>{qtd}x</Text>
+            </View>
+          )) : <Text style={styles.emptyText}>Nenhum registro encontrado</Text>}
 
-        <View style={styles.analyticRow}>
-          <Ionicons name="calendar-outline" size={15} color="#4A9FE0" style={{ marginRight: 10 }} />
-          <Text style={[styles.analyticName, { color: '#8FBAD8' }]}>Ano mais frequente</Text>
-          <Text style={styles.analyticQtd}>
-            {anoMaisFrequente ? `${anoMaisFrequente[0]} (${anoMaisFrequente[1]}x)` : '—'}
-          </Text>
+          <View style={styles.divider} />
+
+          <View style={styles.analyticRow}>
+            <Ionicons name="calendar-outline" size={15} color="#4A9FE0" style={{ marginRight: 10 }} />
+            <Text style={[styles.analyticName, { color: '#8FBAD8' }]}>Ano mais frequente</Text>
+            <Text style={styles.analyticQtd}>
+              {anoMaisFrequente ? `${anoMaisFrequente[0]} (${anoMaisFrequente[1]}x)` : '—'}
+            </Text>
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="lock-closed-outline" size={17} color="#8FBAD8" />
+            <Text style={styles.cardTitle}>Análise de Registros</Text>
+          </View>
+          <View style={styles.accessRestricted}>
+            <Ionicons name="shield-outline" size={26} color="#E0A85A" />
+            <Text style={styles.accessRestrictedText}>Acesso restrito a Analistas e Administradores</Text>
+          </View>
+        </View>
+      )}
 
       {/* Tabela */}
       <View style={styles.card}>
@@ -345,6 +384,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   offlineText: { color: '#FFFFFF', fontWeight: '600', fontSize: 13 },
+
+  roleBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end',
+    borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4,
+    backgroundColor: '#001A38', marginBottom: 10,
+  },
+  roleBadgeText: { fontSize: 10, fontWeight: '700', letterSpacing: 1 },
+  accessRestricted: { alignItems: 'center', paddingVertical: 20, gap: 10 },
+  accessRestrictedText: { color: '#8FBAD8', fontSize: 13, textAlign: 'center' },
 
   // KPI
   kpiRow: { flexDirection: 'row', marginBottom: 14 },

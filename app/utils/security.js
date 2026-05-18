@@ -36,3 +36,41 @@ const SAFE_ERRORS = {
 // Returns a user-facing message that never exposes stack traces or internal details
 export const safeError = (context = 'generic') =>
   SAFE_ERRORS[context] || SAFE_ERRORS.generic;
+
+// ── Anonymisation helpers ─────────────────────────────────────────────────
+// Masks an email address for safe display in logs/UI: 'user@ford.com' → 'us**@ford.com'
+export const anonymizeEmail = (email) => {
+  if (typeof email !== 'string' || !email.includes('@')) return '***';
+  const [local, domain] = email.split('@');
+  const visible = local.slice(0, 2);
+  const masked  = '*'.repeat(Math.max(local.length - 2, 2));
+  return `${visible}${masked}@${domain}`;
+};
+
+// Reduces a full name to first name + last initial: 'João Silva Santos' → 'João S.'
+export const anonymizeName = (name) => {
+  if (typeof name !== 'string' || !name.trim()) return '***';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+};
+
+// ── Payload signing ────────────────────────────────────────────────────────
+// DJB2-based HMAC simulation — must stay in sync with server.js verification
+const PAYLOAD_SECRET = 'fsa-payload-2025-k3m7x';
+
+const djb2 = (str) => {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = (((h << 5) + h) ^ str.charCodeAt(i)) >>> 0;
+  }
+  return h.toString(36);
+};
+
+// Signs a payload object; returns { signature, timestamp } to include as request headers
+export const signPayload = (data) => {
+  const body = typeof data === 'string' ? data : JSON.stringify(data);
+  const timestamp = Date.now().toString();
+  const signature = djb2(body + timestamp + PAYLOAD_SECRET);
+  return { signature, timestamp };
+};
