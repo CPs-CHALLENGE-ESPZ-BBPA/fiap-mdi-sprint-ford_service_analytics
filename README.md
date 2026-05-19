@@ -66,21 +66,21 @@ npm run web      # Navegador
 |---|---------|------|
 | 1 | <img width="499" height="829" alt="image" src="https://github.com/user-attachments/assets/3ab8f0d1-cb74-4c09-9f06-5368a60e6a43" /> | Login |
 | 2 | <img width="501" height="831" alt="image" src="https://github.com/user-attachments/assets/c0ab6054-b396-4988-a0ef-ce57a5f3ca67" /> | Criar conta |
-| 3 | _Cole aqui o print do Menu Principal (cards Cadastrar / Fidelidade / Dashboard / Sair + badge de papel)_ | Menu Principal |
+| 3 | <img width="458" height="827" alt="image" src="https://github.com/user-attachments/assets/af7746a8-c6a0-4fe0-939d-61a38b9fb052" /> | Menu Principal |
 | 4 | <img width="501" height="829" alt="image" src="https://github.com/user-attachments/assets/045ac55c-05e3-48f4-867e-4fd628772075" /> | Modal de seleção FIPE |
-| 5 | <img width="438" height="826" alt="image" src="https://github.com/user-attachments/assets/d21b4a48-0328-450e-b9a8-f69d717b6c5e" /> | Formulário de cadastro _(atualizar com o campo Placa)_ |
+| 5 | <img width="351" height="689" alt="image" src="https://github.com/user-attachments/assets/a186fb09-75bb-496b-9a6b-6803a8594e54" /> | Formulário de cadastro |
 | 6 | <img width="504" height="183" alt="image" src="https://github.com/user-attachments/assets/1623c753-a34d-4626-acc6-9bc1d369f6fa" /> | Dashboard — KPIs |
 | 7 | <img width="492" height="467" alt="image" src="https://github.com/user-attachments/assets/8f485084-7ec9-4615-a243-99b36f0ea882" /> | Dashboard — detalhes |
-| 8 | <img width="501" height="828" alt="image" src="https://github.com/user-attachments/assets/540e66c5-d409-4996-a512-db924dd4c28a" /> | Dashboard — tabela _(atualizar com a coluna Placa)_ |
+| 8 | <img width="466" height="826" alt="image" src="https://github.com/user-attachments/assets/1010eba4-6bb8-4947-9875-cad9498c21ef" /> | Dashboard — tabela |
 | 9 | <img width="500" height="829" alt="image" src="https://github.com/user-attachments/assets/fdca8bf1-72a9-419e-a06b-852248a56be7" /> | Programa de Fidelidade |
 | 10 | <img width="501" height="829" alt="image" src="https://github.com/user-attachments/assets/7648fab6-e133-4a17-8c6e-f15bc283291a" /> | Agendamento de retorno |
 
 ### Fluxo Principal
 
-> Vídeo do fluxo: Login → Cadastro (FIPE) → Dashboard → Fidelidade → Agendamento
+> Vídeo do fluxo: Login → Cadastro (FIPE) → Dashboard → Fidelidade → Agendamento → Sair
 
 ```
-https://github.com/user-attachments/assets/81ed1f9c-4fcb-4367-950f-fc11af27c75d
+https://github.com/user-attachments/assets/050c43da-6f8f-46fe-881f-c10dad0b322e
 ```
 
 ---
