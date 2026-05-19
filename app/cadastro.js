@@ -271,7 +271,8 @@ export default function Cadastro() {
         custo:    custoNum,
         placa:    values.placa.trim().toUpperCase(),
       };
-      const { signature, timestamp } = signPayload(payload);
+      const bodyStr = JSON.stringify(payload);
+      const { signature, timestamp } = signPayload(bodyStr);
 
       const response = await fetch(`${API_URL}/carros`, {
         method: 'POST',
@@ -280,7 +281,7 @@ export default function Cadastro() {
           'X-Payload-Signature': signature,
           'X-Request-Timestamp': timestamp,
         },
-        body: JSON.stringify(payload),
+        body: bodyStr,
       });
 
       if (response.ok) {

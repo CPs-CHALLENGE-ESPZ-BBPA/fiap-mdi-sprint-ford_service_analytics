@@ -1,8 +1,16 @@
-const jsonServer = require('json-server');
+const jsonServer  = require('json-server');
+const bodyParser  = require('body-parser');
 
 const server   = jsonServer.create();
 const router   = jsonServer.router('db.json');
 const defaults = jsonServer.defaults();
+
+// Capture raw body BEFORE json-server's body-parser runs.
+// body-parser checks req._body and skips if already set, so this is safe to
+// insert before defaults() — json-server's body-parser becomes a no-op.
+server.use(bodyParser.json({
+  verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); },
+}));
 
 // ── Payload signing secret (must match app/utils/security.js) ─────────────
 const PAYLOAD_SECRET = 'fsa-payload-2025-k3m7x';
@@ -34,6 +42,7 @@ const djb2 = (str) => {
   }
   return h.toString(36);
 };
+
 
 // ── HTTPS / Security headers ───────────────────────────────────────────────
 server.use((req, res, next) => {
@@ -125,7 +134,8 @@ server.use((req, res, next) => {
     return res.status(400).json({ error: 'Request timestamp expired or invalid' });
   }
 
-  const bodyStr = JSON.stringify(req.body);
+  // Compare against the raw body bytes — identical to what the client signed.
+  const bodyStr = req.rawBody || JSON.stringify(req.body);
   const expected = djb2(bodyStr + timestamp + PAYLOAD_SECRET);
 
   if (expected !== signature) {

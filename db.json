@@ -26,6 +26,15 @@
       "problema": "Freio traseiro desgastado",
       "custo": 320000,
       "placa": "ODS-4H51"
+    },
+    {
+      "nome": "Ford Aerostar Mini-Van 3.8",
+      "modelo": "2.0",
+      "ano": 1995,
+      "problema": "freio",
+      "custo": 14635,
+      "placa": "ABC-1234",
+      "id": "dS3XjlE"
     }
   ]
 }

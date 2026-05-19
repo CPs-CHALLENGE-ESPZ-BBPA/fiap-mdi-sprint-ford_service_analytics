@@ -1,9 +1,23 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View, Platform } from "react-native";
+import { View, Platform, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import { runRetentionPolicy } from "./utils/retention";
+
+function MenuHeaderButton() {
+  const router = useRouter();
+  return (
+    <TouchableOpacity
+      onPress={() => router.replace('/menu')}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      style={{ marginRight: 4 }}
+    >
+      <Ionicons name="grid-outline" size={22} color="#FFFFFF" />
+    </TouchableOpacity>
+  );
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -48,9 +62,9 @@ export default function Layout() {
         <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="nova-conta" options={{ title: "Criar Conta" }} />
         <Stack.Screen name="about" options={{ title: "Sobre" }} />
-        <Stack.Screen name="cadastro" options={{ title: "Cadastrar Veículo" }} />
-<Stack.Screen name="registros" options={{ title: "Dashboard" }} />
-        <Stack.Screen name="fidelidade" options={{ title: "Programa de Fidelidade" }} />
+        <Stack.Screen name="cadastro" options={{ title: "Cadastrar Veículo", headerRight: () => <MenuHeaderButton /> }} />
+        <Stack.Screen name="registros" options={{ title: "Dashboard", headerRight: () => <MenuHeaderButton /> }} />
+        <Stack.Screen name="fidelidade" options={{ title: "Programa de Fidelidade", headerRight: () => <MenuHeaderButton /> }} />
       </Stack>
     </View>
   );

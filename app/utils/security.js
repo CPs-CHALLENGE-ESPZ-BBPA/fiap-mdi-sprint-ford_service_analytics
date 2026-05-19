@@ -67,7 +67,9 @@ const djb2 = (str) => {
   return h.toString(36);
 };
 
-// Signs a payload object; returns { signature, timestamp } to include as request headers
+// Signs a payload object; returns { signature, timestamp } to include as request headers.
+// The caller must send JSON.stringify(payload) as the request body — the server verifies
+// against the raw body bytes, so the signed string and the wire body must be identical.
 export const signPayload = (data) => {
   const body = typeof data === 'string' ? data : JSON.stringify(data);
   const timestamp = Date.now().toString();
