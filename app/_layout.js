@@ -47,7 +47,7 @@ export default function Layout() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#001E3C" }}>
+    <View style={{ flex: 1, backgroundColor: "#001E3C", overflow: "hidden" }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{

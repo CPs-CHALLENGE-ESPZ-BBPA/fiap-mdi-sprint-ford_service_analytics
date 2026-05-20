@@ -317,9 +317,9 @@ export default function Cadastro() {
           <View style={styles.sectionIconBox}>
             <Ionicons name="car-sport-outline" size={24} color="#4A9FE0" />
           </View>
-          <View style={{ marginLeft: 14, flex: 1 }}>
-            <Text style={styles.sectionTitle}>Novo Registro</Text>
-            <Text style={styles.sectionSubtitle}>Preencha os dados do veículo</Text>
+          <View style={{ marginLeft: 14, flex: 1, minWidth: 0 }}>
+            <Text style={styles.sectionTitle} numberOfLines={1}>Novo Registro</Text>
+            <Text style={styles.sectionSubtitle} numberOfLines={1}>Preencha os dados do veículo</Text>
           </View>
           {role && (
             <View style={[styles.roleBadge, { borderColor: ROLE_COLORS[role] }]}>
@@ -539,7 +539,7 @@ export default function Cadastro() {
         onRequestClose={() => setModal(prev => ({ ...prev, visible: false }))}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20), height: windowHeight * 0.78 }]}>
+          <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20) }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{modal.title}</Text>
               <TouchableOpacity onPress={() => { setSearchQuery(''); setModal(prev => ({ ...prev, visible: false })); }}>
@@ -566,14 +566,14 @@ export default function Cadastro() {
             </View>
 
             <FlatList
-              style={styles.modalList}
+              style={[styles.modalList, { maxHeight: windowHeight * 0.55 }]}
               data={modal.items.filter(item =>
                 item.nome.toLowerCase().includes(searchQuery.toLowerCase())
               )}
               keyExtractor={(item) => item.codigo.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.modalItem} onPress={() => handleModalSelect(item)} activeOpacity={0.7}>
-                  <Text style={styles.modalItemText}>{item.nome}</Text>
+                  <Text style={styles.modalItemText} numberOfLines={1}>{item.nome}</Text>
                   <Ionicons name="chevron-forward-outline" size={15} color="#2A4A6A" />
                 </TouchableOpacity>
               )}
@@ -701,14 +701,14 @@ const styles = StyleSheet.create({
   botaoRestrito: { opacity: 0.45 },
   textoBotaoRestrito: { color: '#4A6A8A', fontWeight: '600', fontSize: 15 },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalContainer: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#002B5C', borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingTop: 20, paddingHorizontal: 20,
     borderWidth: 1, borderColor: '#1A4A7A',
+    width: '100%', overflow: 'hidden',
   },
-  modalList: { flex: 1, minHeight: 0 },
+  modalList: { minHeight: 0 },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: 16, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: '#1A3A5C',
