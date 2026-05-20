@@ -30,6 +30,9 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# TLS certs (generated locally by server.js)
+/.certs
+
 # local env files
 .env*.local
 

@@ -12,6 +12,7 @@ import { loadSession, clearSession } from './utils/auth';
 import { checkRateLimit } from './utils/rateLimiter';
 import { logger } from './utils/logger';
 import { hasPermission, ROLE_LABELS, ROLE_COLORS } from './utils/rbac';
+import { encryptData, decryptData } from './utils/crypto';
 import { BarChart } from 'react-native-chart-kit';
 import * as Notifications from 'expo-notifications';
 
@@ -23,9 +24,9 @@ const notify = async (title, body) => {
 };
 
 const API_URL = Platform.select({
-  android: 'http://10.0.2.2:3000',
-  ios: 'http://localhost:3000',
-  web: 'http://localhost:3000',
+  android: 'https://10.0.2.2:3000',
+  ios: 'https://localhost:3000',
+  web: 'https://localhost:3000',
 });
 
 const chartConfig = {
@@ -61,6 +62,14 @@ export default function Registros() {
     });
   }, []);
 
+  // Reads carsCache (encrypted in current format; falls back to plaintext for legacy cache)
+  const readCarsCache = async () => {
+    const cached = await AsyncStorage.getItem('carsCache');
+    if (!cached) return null;
+    try { return JSON.parse(decryptData(cached)); }
+    catch { try { return JSON.parse(cached); } catch { return null; } }
+  };
+
   const fetchCars = async () => {
     if (!checkRateLimit('api_read')) return;
     setLoading(true);
@@ -70,9 +79,9 @@ export default function Registros() {
       setIsOnline(connected);
 
       if (!connected) {
-        const cached = await AsyncStorage.getItem('carsCache');
+        const cached = await readCarsCache();
         if (cached) {
-          setCars(JSON.parse(cached));
+          setCars(cached);
           await notify('Modo offline', 'Sem conexão — exibindo dados salvos em cache.');
         }
         setLoading(false);
@@ -82,12 +91,12 @@ export default function Registros() {
       const response = await fetch(`${API_URL}/carros`);
       const data = await response.json();
       setCars(data);
-      await AsyncStorage.setItem('carsCache', JSON.stringify(data));
+      await AsyncStorage.setItem('carsCache', encryptData(JSON.stringify(data)));
       await AsyncStorage.setItem('carsCacheTimestamp', Date.now().toString());
     } catch {
       try {
-        const cached = await AsyncStorage.getItem('carsCache');
-        if (cached) setCars(JSON.parse(cached));
+        const cached = await readCarsCache();
+        if (cached) setCars(cached);
       } catch (_) {}
     }
     setLoading(false);

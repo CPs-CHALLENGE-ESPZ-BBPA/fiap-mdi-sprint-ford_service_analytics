@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform,
-  Modal, FlatList, ActivityIndicator, Animated,
+  Modal, FlatList, ActivityIndicator, Animated, useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -23,9 +23,9 @@ const notify = async (title, body) => {
 };
 
 const API_URL = Platform.select({
-  android: 'http://10.0.2.2:3000',
-  ios: 'http://localhost:3000',
-  web: 'http://localhost:3000',
+  android: 'https://10.0.2.2:3000',
+  ios: 'https://localhost:3000',
+  web: 'https://localhost:3000',
 });
 
 const FIPE_BASE = 'https://parallelum.com.br/fipe/api/v1';
@@ -51,6 +51,7 @@ const TOAST_ICONS = { success: 'checkmark-circle', error: 'close-circle', warnin
 export default function Cadastro() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   const [role, setRole] = useState(null);
   const [values, setValues] = useState({ carro: '', modelo: '', ano: '', problema: '', custo: '', placa: '' });
   const [focused, setFocused] = useState(null);
@@ -538,7 +539,7 @@ export default function Cadastro() {
         onRequestClose={() => setModal(prev => ({ ...prev, visible: false }))}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20) }]}>
+          <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom + 16, 20), height: windowHeight * 0.78 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{modal.title}</Text>
               <TouchableOpacity onPress={() => { setSearchQuery(''); setModal(prev => ({ ...prev, visible: false })); }}>
@@ -565,6 +566,7 @@ export default function Cadastro() {
             </View>
 
             <FlatList
+              style={styles.modalList}
               data={modal.items.filter(item =>
                 item.nome.toLowerCase().includes(searchQuery.toLowerCase())
               )}
@@ -699,11 +701,14 @@ const styles = StyleSheet.create({
   botaoRestrito: { opacity: 0.45 },
   textoBotaoRestrito: { color: '#4A6A8A', fontWeight: '600', fontSize: 15 },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)' },
   modalContainer: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#002B5C', borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    padding: 20, maxHeight: '75%', borderWidth: 1, borderColor: '#1A4A7A',
+    paddingTop: 20, paddingHorizontal: 20,
+    borderWidth: 1, borderColor: '#1A4A7A',
   },
+  modalList: { flex: 1, minHeight: 0 },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: 16, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: '#1A3A5C',

@@ -35,6 +35,24 @@
       "custo": 14635,
       "placa": "ABC-1234",
       "id": "dS3XjlE"
+    },
+    {
+      "nome": "Ford Del Rey Ghia 1.8 / 1.6 2p e 4p",
+      "modelo": "2.0",
+      "ano": 1991,
+      "problema": "Freio",
+      "custo": 22034,
+      "placa": "ABC-5432",
+      "id": "q-db0KK"
+    },
+    {
+      "nome": "Ford Escort Ghia 1.8i / 1.8 / 1.6",
+      "modelo": "2.0",
+      "ano": 1995,
+      "problema": "Freio",
+      "custo": 7740,
+      "placa": "ABC-5432",
+      "id": "yMKajXa"
     }
   ]
 }

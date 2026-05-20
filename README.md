@@ -44,7 +44,7 @@ git clone https://github.com/CPs-CHALLENGE-ESPZ-BBPA/fiap-mdi-sprint-ford_servic
 cd fiap-mdi-sprint-ford_service_analytics
 npm install
 
-# 2. Terminal 1 — API mock
+# 2. Terminal 1 — API mock (HTTPS com cert auto-assinado)
 npm run api
 
 # 3. Terminal 2 — App
@@ -55,6 +55,8 @@ npm run web      # Navegador
 
 **Credenciais de teste:** e-mail `a` / senha `a`  
 *(ou crie uma conta pela tela "Cadastre-se")*
+
+> ⚠️ **Primeira execução — aceitar o cert TLS local:** na primeira vez que o `npm run api` rodar, ele gera um cert auto-assinado em `.certs/` (gitignored). Antes de testar o app no browser, abra `https://localhost:3000/carros` no navegador e clique em "Avançado → Prosseguir mesmo assim". O Chrome/Edge guarda a decisão para a sessão. Para Android emulador, a URL é `https://10.0.2.2:3000` (mesmo cert, mesmo procedimento). Em produção, o cert seria substituído por um emitido por CA pública (Let's Encrypt).
 
 ---
 
@@ -158,7 +160,7 @@ Login (/)
 - **Dois níveis de auth** — `a/a` como atalho de demo (papel admin), AsyncStorage `@usuarios` para contas reais (papel atribuído pelo formulário ou pelo domínio `@ford.com` → analista).
 - **RBAC** — três papéis controlam o que aparece no menu, no cadastro e no dashboard via `hasPermission(role, action)` em `utils/rbac.js`.
 - **Programa de fidelidade** — desconto calculado como `min(visitas × 5%, 30%)`. Mercado estimado em 7% abaixo do preço Ford: a partir da 2ª visita o desconto supera essa diferença e a Ford fica mais barata que o mercado, mostrando o valor concreto de retornar à rede oficial.
-- **Segurança como diferencial** — hash de senha, criptografia em repouso, rate limit, brute force protection, sanitização, payload signing, logs estruturados e trilha de auditoria (5 commits dedicados ao Cybersecurity Challenge — ver histórico do git).
+- **Segurança como diferencial** — TLS local (cert auto-assinado via `selfsigned`), hash de senha, criptografia em repouso (incluindo cache do dashboard), rate limit, brute force protection, sanitização, payload signing, body size limit (10kb), logs estruturados e trilha de auditoria (commits dedicados ao Cybersecurity Challenge — ver histórico do git).
 
 ---
 

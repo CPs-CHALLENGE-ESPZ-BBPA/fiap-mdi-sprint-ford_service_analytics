@@ -1,14 +1,53 @@
 const jsonServer  = require('json-server');
 const bodyParser  = require('body-parser');
+const fs          = require('fs');
+const path        = require('path');
+const https       = require('https');
+const selfsigned  = require('selfsigned');
 
 const server   = jsonServer.create();
 const router   = jsonServer.router('db.json');
 const defaults = jsonServer.defaults();
 
+// ── TLS cert generation/loading ────────────────────────────────────────────
+// Generates a self-signed cert on first run, persists it under .certs/.
+// Cert covers localhost, 127.0.0.1 and 10.0.2.2 (Android emulator → host loopback).
+const CERT_DIR  = path.join(__dirname, '.certs');
+const CERT_PATH = path.join(CERT_DIR, 'cert.pem');
+const KEY_PATH  = path.join(CERT_DIR, 'key.pem');
+
+const loadOrCreateCert = async () => {
+  if (fs.existsSync(CERT_PATH) && fs.existsSync(KEY_PATH)) {
+    return { cert: fs.readFileSync(CERT_PATH), key: fs.readFileSync(KEY_PATH) };
+  }
+  if (!fs.existsSync(CERT_DIR)) fs.mkdirSync(CERT_DIR);
+  const pems = await selfsigned.generate(
+    [{ name: 'commonName', value: 'localhost' }],
+    {
+      days:      365,
+      keySize:   2048,
+      algorithm: 'sha256',
+      extensions: [{
+        name: 'subjectAltName',
+        altNames: [
+          { type: 2, value: 'localhost' },
+          { type: 7, ip: '127.0.0.1' },
+          { type: 7, ip: '10.0.2.2' },
+        ],
+      }],
+    }
+  );
+  fs.writeFileSync(CERT_PATH, pems.cert);
+  fs.writeFileSync(KEY_PATH,  pems.private);
+  return { cert: pems.cert, key: pems.private };
+};
+
 // Capture raw body BEFORE json-server's body-parser runs.
 // body-parser checks req._body and skips if already set, so this is safe to
 // insert before defaults() — json-server's body-parser becomes a no-op.
+// `limit: '10kb'` blocks payload flooding / buffer-overflow style attacks.
 server.use(bodyParser.json({
+  limit: '10kb',
   verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); },
 }));
 
@@ -52,13 +91,15 @@ server.use((req, res, next) => {
   next();
 });
 
-// ── CORS — allow only authorised local origins ─────────────────────────────
+// ── CORS — allow only authorised local origins (HTTP for Metro/Expo, HTTPS for API) ──
 const ALLOWED_ORIGINS = [
   'http://localhost:8081',
   'http://localhost:19000',
   'http://localhost:19006',
   'http://localhost:3000',
   'http://10.0.2.2:3000',
+  'https://localhost:3000',
+  'https://10.0.2.2:3000',
 ];
 
 server.use((req, res, next) => {
@@ -157,12 +198,17 @@ server.use((req, res, next) => {
 
 server.use(router);
 
-server.listen(3000, () => {
-  console.log('');
-  console.log('🔒 Ford Service Analytics API — porta 3000');
-  console.log('   ✅ HTTPS headers: Strict-Transport-Security, X-Frame-Options');
-  console.log('   ✅ CORS: apenas origens autorizadas');
-  console.log('   ✅ Rate limiting: GET 60/min · POST 20/min · DELETE 10/min');
-  console.log('   ✅ Payload signing: verificação ativa em POST/PUT/PATCH');
-  console.log('');
-});
+(async () => {
+  const { cert, key } = await loadOrCreateCert();
+  https.createServer({ key, cert }, server).listen(3000, () => {
+    console.log('');
+    console.log('🔒 Ford Service Analytics API — https://localhost:3000');
+    console.log('   ✅ TLS: cert auto-assinado (.certs/) — aceite no browser na primeira visita');
+    console.log('   ✅ HTTPS headers: Strict-Transport-Security, X-Frame-Options');
+    console.log('   ✅ CORS: apenas origens autorizadas');
+    console.log('   ✅ Rate limiting: GET 60/min · POST 20/min · DELETE 10/min');
+    console.log('   ✅ Payload signing: verificação ativa em POST/PUT/PATCH');
+    console.log('   ✅ Body size limit: 10kb (payload flooding protection)');
+    console.log('');
+  });
+})();
