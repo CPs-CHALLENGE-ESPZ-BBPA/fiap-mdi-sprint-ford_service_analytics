@@ -56,7 +56,7 @@ npm run web      # Navegador
 **Credenciais de teste:** e-mail `a` / senha `a`  
 *(ou crie uma conta pela tela "Cadastre-se")*
 
-> ⚠️ **Primeira execução — aceitar o cert TLS local:** na primeira vez que o `npm run api` rodar, ele gera um cert auto-assinado em `.certs/` (gitignored). Antes de testar o app no browser, abra `https://localhost:3000/carros` no navegador e clique em "Avançado → Prosseguir mesmo assim". O Chrome/Edge guarda a decisão para a sessão. Para Android emulador, a URL é `https://10.0.2.2:3000` (mesmo cert, mesmo procedimento). Em produção, o cert seria substituído por um emitido por CA pública (Let's Encrypt).
+> 🔐 **API dual-stack — HTTP + HTTPS simultâneos:** o `npm run api` sobe a mesma API em duas portas: `http://localhost:3000` (usada pelo client em dev, sem fricção) e `https://localhost:3443` (TLS com cert auto-assinado gerado em `.certs/` no startup, demonstra o requisito de HTTPS do Cybersecurity Challenge). Toda a stack de middleware (CORS, rate limit, payload signing, audit, body size limit) se aplica a ambas as portas. Para verificar o TLS funcionando: `curl -k https://localhost:3443/carros`. Em produção, o cert auto-assinado seria substituído por um emitido por CA pública (Let's Encrypt) e o HTTP seria desligado.
 
 ---
 

@@ -53,6 +53,15 @@
       "custo": 7740,
       "placa": "ABC-5432",
       "id": "yMKajXa"
+    },
+    {
+      "nome": "Ford Bronco Sport Badlands 2.0L TB 4WD Aut.",
+      "modelo": "1.0",
+      "ano": 2025,
+      "problema": "freio",
+      "custo": 234910,
+      "placa": "ABC-1234",
+      "id": "zPHCo3a"
     }
   ]
 }

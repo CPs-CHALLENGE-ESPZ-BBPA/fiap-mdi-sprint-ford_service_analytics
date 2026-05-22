@@ -24,9 +24,9 @@ const notify = async (title, body) => {
 };
 
 const API_URL = Platform.select({
-  android: 'https://10.0.2.2:3000',
-  ios: 'https://localhost:3000',
-  web: 'https://localhost:3000',
+  android: 'http://10.0.2.2:3000',
+  ios: 'http://localhost:3000',
+  web: 'http://localhost:3000',
 });
 
 const chartConfig = {

@@ -198,13 +198,23 @@ server.use((req, res, next) => {
 
 server.use(router);
 
+// Dual-stack: HTTP on 3000 (dev convenience — mobile/native don't trust self-signed certs
+// without native config) and HTTPS on 3443 (security requirement — TLS demonstrably available
+// via `curl -k https://localhost:3443/carros`). All security middleware applies to both ports.
+const http = require('http');
+
 (async () => {
   const { cert, key } = await loadOrCreateCert();
-  https.createServer({ key, cert }, server).listen(3000, () => {
+
+  http.createServer(server).listen(3000, () => {
     console.log('');
-    console.log('🔒 Ford Service Analytics API — https://localhost:3000');
-    console.log('   ✅ TLS: cert auto-assinado (.certs/) — aceite no browser na primeira visita');
-    console.log('   ✅ HTTPS headers: Strict-Transport-Security, X-Frame-Options');
+    console.log('🌐 Ford Service Analytics API — http://localhost:3000  (cliente dev)');
+  });
+
+  https.createServer({ key, cert }, server).listen(3443, () => {
+    console.log('🔒 Ford Service Analytics API — https://localhost:3443 (TLS, mesma API)');
+    console.log('   ✅ HTTPS: cert auto-assinado em .certs/ (gerado no startup)');
+    console.log('   ✅ Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options');
     console.log('   ✅ CORS: apenas origens autorizadas');
     console.log('   ✅ Rate limiting: GET 60/min · POST 20/min · DELETE 10/min');
     console.log('   ✅ Payload signing: verificação ativa em POST/PUT/PATCH');
