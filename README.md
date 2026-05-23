@@ -62,6 +62,17 @@ npm run web      # Navegador
 
 ## d) Demonstração Visual
 
+> Apresentação em Vídeo do Projeto
+> Acesse o vídeo também pelo link: https://youtu.be/vZFNXk1H4zQ
+
+
+```
+https://github.com/user-attachments/assets/71501834-434c-4c83-aafd-6c1b229f58aa
+
+```
+
+
+
 ### Telas
 
 | # | Arquivo | Tela |
