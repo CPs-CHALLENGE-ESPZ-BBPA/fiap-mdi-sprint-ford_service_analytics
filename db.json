@@ -62,6 +62,33 @@
       "custo": 234910,
       "placa": "ABC-1234",
       "id": "zPHCo3a"
+    },
+    {
+      "nome": "Ford Belina GL 1.8 / 1.6",
+      "modelo": "1.0",
+      "ano": 1986,
+      "problema": "Freio",
+      "custo": 4582,
+      "placa": "ABC-1234",
+      "id": "LZxI1Wd"
+    },
+    {
+      "nome": "Ford Bronco Sport Badlands 2.0L TB 4WD Aut.",
+      "modelo": "1.0",
+      "ano": 2025,
+      "problema": "Freio",
+      "custo": 234910,
+      "placa": "ABC-1234",
+      "id": "Hxud6ME"
+    },
+    {
+      "nome": "Ford Bronco Sport Wildtrak 2.0 Tb 16V AWD Aut",
+      "modelo": "2.0",
+      "ano": 2024,
+      "problema": "Câmbio",
+      "custo": 195570,
+      "placa": "ABC-1234",
+      "id": "kVAiudG"
     }
   ]
 }

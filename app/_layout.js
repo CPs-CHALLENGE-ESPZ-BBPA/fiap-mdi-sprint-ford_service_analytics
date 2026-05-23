@@ -12,9 +12,20 @@ function MenuHeaderButton() {
     <TouchableOpacity
       onPress={() => router.replace('/menu')}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      style={{ marginRight: 4 }}
+      activeOpacity={0.7}
+      style={{
+        marginRight: 6,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: 'rgba(255, 255, 255, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      <Ionicons name="grid-outline" size={22} color="#FFFFFF" />
+      <Ionicons name="home-outline" size={18} color="#FFFFFF" />
     </TouchableOpacity>
   );
 }

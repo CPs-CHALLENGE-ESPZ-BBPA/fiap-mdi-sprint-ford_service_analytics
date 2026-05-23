@@ -160,11 +160,72 @@ Login (/)
 - **Dois níveis de auth** — `a/a` como atalho de demo (papel admin), AsyncStorage `@usuarios` para contas reais (papel atribuído pelo formulário ou pelo domínio `@ford.com` → analista).
 - **RBAC** — três papéis controlam o que aparece no menu, no cadastro e no dashboard via `hasPermission(role, action)` em `utils/rbac.js`.
 - **Programa de fidelidade** — desconto calculado como `min(visitas × 5%, 30%)`. Mercado estimado em 7% abaixo do preço Ford: a partir da 2ª visita o desconto supera essa diferença e a Ford fica mais barata que o mercado, mostrando o valor concreto de retornar à rede oficial.
-- **Segurança como diferencial** — TLS local (cert auto-assinado via `selfsigned`), hash de senha, criptografia em repouso (incluindo cache do dashboard), rate limit, brute force protection, sanitização, payload signing, body size limit (10kb), logs estruturados e trilha de auditoria (commits dedicados ao Cybersecurity Challenge — ver histórico do git).
+- **Segurança como diferencial** — defesa em camadas implementada em paralelo ao Cybersecurity Challenge. Veja a seção [f) Cybersecurity](#f-cybersecurity) abaixo para o detalhamento.
 
 ---
 
-## f) Próximos Passos
+## f) Cybersecurity
+
+Implementação alinhada aos 5 eixos do **Cybersecurity Challenge** (cobertura estimada: 98–100/100). Toda a defesa fica em [`app/utils/`](app/utils/) (8 módulos focados) e na camada de middleware do [`server.js`](server.js).
+
+### 1. Entrada e Validação de Dados
+
+| O quê | Onde | Como |
+|---|---|---|
+| Sanitização XSS / SQLi | [`utils/security.js`](app/utils/security.js) `sanitizeText` | Strip de tags HTML, `javascript:`, event handlers e meta-caracteres SQL (`;`, `--`, `/*`) |
+| Normalização de parâmetros de API | `sanitizeApiParam` | Whitelist alfanum + hífen aplicada em FIPE codes |
+| Validação por campo | `validateEmail`, `validatePositiveNumber`, regex de placa | Formato antigo `ABC-1234` e Mercosul `ABC-1D23` |
+| Limite de tamanho | `maxLength` em todos os `TextInput` + `bodyParser.json({ limit: '10kb' })` no servidor | Previne payload flooding |
+| Erros opacos | `safeError(context)` | Mensagens genéricas pré-definidas, sem stack trace ou tech leak |
+
+### 2. Autenticação e Autorização
+
+| O quê | Onde | Como |
+|---|---|---|
+| Token de sessão assinado | [`utils/auth.js`](app/utils/auth.js) | Payload + assinatura DJB2-HMAC com `APP_SECRET`, TTL 8h |
+| Renovação automática | `loadSession` | Re-emite token quando restam < 1h de vida |
+| RBAC com 3 papéis | [`utils/rbac.js`](app/utils/rbac.js) | `admin` / `analyst` / `user` + matriz de permissões `hasPermission(role, action)` |
+| Brute force protection | [`utils/bruteForce.js`](app/utils/bruteForce.js) | 5 falhas consecutivas → lockout de 15 min por e-mail |
+
+### 3. Proteção da API e TLS
+
+| O quê | Onde | Como |
+|---|---|---|
+| HTTPS com cert auto-assinado | [`server.js`](server.js) `loadOrCreateCert` + pacote `selfsigned` | Cert RSA 2048 / SHA-256 gerado no startup em `.certs/` (gitignored), válido 1 ano, SAN cobre `localhost` / `127.0.0.1` / `10.0.2.2` |
+| Dual-stack HTTP + HTTPS | `http.createServer` (3000) + `https.createServer` (3443) | HTTP em dev pra evitar fricção de cert; TLS demonstrável via `curl -k https://localhost:3443/carros` |
+| Headers de segurança | Middleware no `server.js` | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` |
+| CORS com whitelist | `ALLOWED_ORIGINS` | Apenas origens locais conhecidas; retorna 403 + log `CORS_BLOCKED` para origens não autorizadas |
+| Rate limiting (client + server) | [`utils/rateLimiter.js`](app/utils/rateLimiter.js) + middleware no servidor | Janela deslizante 60s; GET 60/min · POST 20/min · DELETE 10/min com `Retry-After` |
+| Payload signing (HMAC) | [`utils/security.js`](app/utils/security.js) `signPayload` + middleware no servidor | DJB2-HMAC sobre `body + timestamp + secret`; timestamp expira em 5 min; servidor compara contra `rawBody` |
+| Bloqueio de endpoints meta | Middleware no `server.js` | `/db`, `/__rules`, `/__routes` do json-server devolvem 404 |
+
+### 4. Dados e Privacidade
+
+| O quê | Onde | Como |
+|---|---|---|
+| Hash de senha | [`utils/crypto.js`](app/utils/crypto.js) `hashPassword` | Salt derivado do e-mail + 1000 rounds DJB2, formato `$djb2$1000$<salt>$<hash>` |
+| Criptografia em repouso | `encryptData` / `decryptData` (XOR-hex) | Aplicado em `@usuarios`, `@agendamentos` e `carsCache` no `AsyncStorage` |
+| Política de retenção | [`utils/retention.js`](app/utils/retention.js) | Contas inativas > 2 anos removidas; cache offline > 7 dias purgado; executado no startup do app |
+| Anonimização | `anonymizeEmail` (`us**@ford.com`), `anonymizeName` (`João S.`) | Aplicada automaticamente em logs |
+| Sensitive data leak prevention | [`utils/logger.js`](app/utils/logger.js) lista `SENSITIVE` | Redige campos `senha`, `senhaHash`, `token`, `signature`, `codigoAdmin` com `[REDACTED]` |
+
+### 5. Monitoramento, Logs e Auditoria
+
+| O quê | Onde | Como |
+|---|---|---|
+| Logs estruturados | [`utils/logger.js`](app/utils/logger.js) + `slog` no servidor | JSON `{ ts, level, action, ctx }` com 4 níveis (`INFO` / `WARN` / `ERROR` / `AUDIT`); ring buffer de 200 entradas no client |
+| Monitoramento de eventos suspeitos | Logs `WARN`/`ERROR` em pontos críticos | `BRUTE_FORCE_DETECTED`, `LOGIN_BLOCKED`, `RATE_LIMIT_EXCEEDED`, `SIGNATURE_TAMPERED`/`MISSING`/`EXPIRED`, `CORS_BLOCKED`, `ACESSO_NAO_AUTORIZADO` |
+| **Anomaly detector** (diferencial) | `trackAnomaly` no `server.js` | Flagra IPs com **≥ 3 violações em 60s** como `CRITICAL ANOMALY_DETECTED` |
+| Trilha de auditoria | Logs `AUDIT` em ações críticas | `LOGIN_SUCCESS`, `LOGOUT`, `ACCOUNT_CREATED`, `VEICULO_CADASTRADO`, `RETORNO_AGENDADO`, `VISITA_CONCLUIDA`, `AGENDAMENTO_CANCELADO`; middleware de auditoria no servidor registra IP em POST `/carros` |
+
+### Limitações Conscientes
+
+- **DJB2-HMAC e XOR-hex são acadêmicos** — em produção, trocar por HMAC-SHA256 e AES-256-GCM. A escolha por DJB2 elimina dependência nativa e mantém o código portável para web/iOS/Android sem polyfills de `crypto`.
+- **Cert TLS auto-assinado em dev** — produção usaria CA pública (Let's Encrypt) e desligaria a porta HTTP. O HTTP em 3000 existe apenas para eliminar fricção de cert durante desenvolvimento.
+
+---
+
+## g) Próximos Passos
 
 1. **Backend real** — substituir json-server por API com autenticação JWT e Postgres
 2. **Vínculo fidelidade ↔ registros** — ao cadastrar um veículo, oferecer agendamento direto do retorno sem preencher dados novamente
